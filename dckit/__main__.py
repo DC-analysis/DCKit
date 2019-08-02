@@ -43,4 +43,3 @@ def main(splash=True):
 
 if __name__ == "__main__":
     main()
-
