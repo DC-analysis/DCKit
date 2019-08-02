@@ -1,5 +1,5 @@
-DCKit
-=====
+|DCKit|
+=======
 
 |PyPI Version| |Status Win|
 
@@ -27,6 +27,7 @@ Testing
     python setup.py test
     
 
+.. |DCKit| image:: https://raw.github.com/ZELLMECHANIK-DRESDEN/DCKit/master/docs/logo/dckit_h50.png
 .. |PyPI Version| image:: https://img.shields.io/pypi/v/dckit.svg
    :target: https://pypi.python.org/pypi/dckit
 .. |Status Win| image:: https://img.shields.io/appveyor/ci/paulmueller/DCKIT/master.svg
