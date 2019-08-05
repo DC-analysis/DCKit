@@ -2,3 +2,6 @@ include CHANGELOG
 include LICENSE
 include README.rst
 recursive-include dckit *.png *.ui
+recursive-include tests *.zip *.md *.py *.txt
+prune docs/_build
+
