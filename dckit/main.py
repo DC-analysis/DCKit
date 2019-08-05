@@ -80,6 +80,25 @@ class DCKit(QtWidgets.QMainWindow):
                     item.setFlags(QtCore.Qt.ItemIsEnabled)
                 self.tableWidget.setItem(row, col, item)
 
+    def dragEnterEvent(self, e):
+        """Whether files are accepted"""
+        if e.mimeData().hasUrls():
+            e.accept()
+        else:
+            e.ignore()
+
+    def dropEvent(self, e):
+        """Add dropped files to view"""
+        urls = e.mimeData().urls()
+        pathlist = []
+        for ff in urls:
+            pp = pathlib.Path(ff.toLocalFile())
+            if pp.is_dir():
+                pathlist += meta_tool.find_data(pp)
+            elif pp.suffix in [".rtdc", ".tdms"]:
+                pathlist.append(pp)
+        self.append_paths(pathlist)
+
     def on_add_folder(self):
         """Search folder for RT-DC data and add to table"""
         # show a dialog for selecting folder
