@@ -4,15 +4,14 @@ import signal
 import sys
 import traceback
 
-import dclab
 from dclab.cli import get_job_info
 import h5py
 import numpy as np
 from PyQt5 import uic, QtCore, QtWidgets
-from shapeout import meta_tool
 from shapeout import __version__ as soversion
 
 from . import history
+from . import meta_tool
 from ._version import version as __version__
 
 
@@ -38,22 +37,21 @@ class DCKit(QtWidgets.QMainWindow):
 
     def append_paths(self, pathlist):
         """Append selected paths to table"""
+        QtWidgets.QApplication.setOverrideCursor(QtCore.Qt.WaitCursor)
         datas = []
         # get meta data for all paths
         for path in pathlist:
-            info = {"DCKit-id": (0, len(self.pathlist)),
-                    "path": (1, path),
-                    "sample": (2, meta_tool.get_sample_name(path)),
-                    "run index": (3, meta_tool.get_run_index(path)),
-                    "flow rate": (5, meta_tool.get_flow_rate(path)),
-                    }
-            try:
-                ec = meta_tool.get_event_count(path)
-            except BaseException:  # meta-tool Python2/3 issue
-                # get event count using dclab (slower)
-                with dclab.new_dataset(path) as ds:
-                    ec = ds.config["experiment"]["event count"]
-            info["event count"] = (4, ec)
+            try:  # avoid any errors
+                info = {"DCKit-id": (0, len(self.pathlist)),
+                        "path": (1, path),
+                        "sample": (2, meta_tool.get_sample_name(path)),
+                        "run index": (3, meta_tool.get_run_index(path)),
+                        "event count": (4, meta_tool.get_event_count(path)),
+                        "flow rate": (5, meta_tool.get_flow_rate(path)),
+                        }
+            except BaseException:
+                # stop doing anything
+                continue
             self.pathlist.append(path)
             datas.append(info)
         # populate table widget
@@ -62,8 +60,6 @@ class DCKit(QtWidgets.QMainWindow):
             self.tableWidget.insertRow(row)
             for key in info:
                 col, val = info[key]
-                if isinstance(val, bytes):
-                    val = val.decode("utf-8")
                 item = QtWidgets.QTableWidgetItem("{}".format(val))
                 if key == "sample":
                     # allow editing sample name
@@ -79,6 +75,7 @@ class DCKit(QtWidgets.QMainWindow):
                 else:
                     item.setFlags(QtCore.Qt.ItemIsEnabled)
                 self.tableWidget.setItem(row, col, item)
+        QtWidgets.QApplication.restoreOverrideCursor()
 
     def dragEnterEvent(self, e):
         """Whether files are accepted"""
@@ -174,8 +171,6 @@ class DCKit(QtWidgets.QMainWindow):
             row = self.tableWidget.currentRow()
             path_index = int(self.tableWidget.item(row, 0).text())
             sample = meta_tool.get_sample_name(self.pathlist[path_index])
-            if isinstance(sample, bytes):
-                sample = sample.decode("utf-8")
             self.tableWidget.item(row, 2).setText(sample)
 
     def on_tdms2rtdc(self):
