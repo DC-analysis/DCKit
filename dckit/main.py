@@ -4,6 +4,9 @@ import signal
 import sys
 import traceback
 
+import dclab
+import h5py
+import numpy as np
 from PyQt5 import uic, QtCore, QtWidgets
 from shapeout import meta_tool
 
@@ -20,22 +23,34 @@ class DCKit(QtWidgets.QMainWindow):
         self.menubar.setNativeMenuBar(False)
         # signals
         self.pushButton_sample.clicked.connect(self.on_change_sample_names)
+        self.pushButton_tdms2rtdc.clicked.connect(self.on_tdms2rtdc)
+        self.pushButton_join.clicked.connect(self.on_join)
         # menu actions
         self.action_add.triggered.connect(self.on_add_measurements)
         self.action_add_folder.triggered.connect(self.on_add_folder)
         self.action_clear.triggered.connect(self.on_clear_measurements)
+        #: contains all imported paths
+        self.pathlist = []
 
     def append_paths(self, pathlist):
         """Append selected paths to table"""
         datas = []
         # get meta data for all paths
         for path in pathlist:
-            info = {"path": (0, path),
-                    "sample name": (1, meta_tool.get_sample_name(path)),
-                    "run index": (2, meta_tool.get_run_index(path)),
-                    "event count": (3, meta_tool.get_event_count(path)),
-                    "flow rate": (4, meta_tool.get_flow_rate(path)),
+            info = {"DCKit-id": (0, len(self.pathlist)),
+                    "path": (1, path),
+                    "sample": (2, meta_tool.get_sample_name(path)),
+                    "run index": (3, meta_tool.get_run_index(path)),
+                    "flow rate": (5, meta_tool.get_flow_rate(path)),
                     }
+            try:
+                ec = meta_tool.get_event_count(path)
+            except BaseException:  # meta-tool Python2/3 issue
+                # get event count using dclab (slower)
+                with dclab.new_dataset(path) as ds:
+                    ec = ds.config["experiment"]["event count"]
+            info["event count"] = (4, ec)
+            self.pathlist.append(path)
             datas.append(info)
         # populate table widget
         for info in datas:
@@ -43,8 +58,10 @@ class DCKit(QtWidgets.QMainWindow):
             self.tableWidget.insertRow(row)
             for key in info:
                 col, val = info[key]
+                if isinstance(val, bytes):
+                    val = val.decode("utf-8")
                 item = QtWidgets.QTableWidgetItem("{}".format(val))
-                if key == "sample name":
+                if key == "sample":
                     # allow editing sample name
                     item.setFlags(QtCore.Qt.ItemIsEnabled
                                   | QtCore.Qt.ItemIsEditable)
@@ -84,10 +101,43 @@ class DCKit(QtWidgets.QMainWindow):
             # add to list
             self.append_paths(pathlist)
 
+    def on_change_sample_names(self):
+        """Update the sample names of the datasets"""
+        invalid = []
+        for row in range(self.tableWidget.rowCount()):
+            path_index = int(self.tableWidget.item(row, 0).text())
+            path = self.pathlist[path_index]
+            newname = self.tableWidget.item(row, 2).text()
+            oldname = meta_tool.get_sample_name(path)
+            # compare sample names bytes-insensitive
+            if np.string_(newname) != np.string_(oldname):
+                if path.suffix == ".tdms":
+                    # not supported for tdms files
+                    invalid.append(path)
+                else:
+                    # change sample name
+                    with h5py.File(path, "a") as h5:
+                        h5.attrs["experiment:sample"] = np.string_(newname)
+                    # add an entry to the log...
+                    pass
+        if invalid:
+            raise ValueError("Changing the sample name for .tdms files is "
+                             + "not supported! Please convert the files to "
+                             + "the .rtdc file format. Affected files are:\n"
+                             + "\n".join([str(p) for p in invalid]))
+
     def on_clear_measurements(self):
+        """Clear the table"""
+        for _ in range(len(self.pathlist)):
+            self.tableWidget.removeRow(0)
+        self.pathlist = []
+
+    def on_join(self):
+        """Join multiple RT-DC measurements"""
         pass
 
-    def on_change_sample_names(self):
+    def on_tdms2rtdc(self):
+        """Convert .tdms files to .rtdc files"""
         pass
 
 
