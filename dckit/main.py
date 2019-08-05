@@ -28,6 +28,7 @@ class DCKit(QtWidgets.QMainWindow):
         self.pushButton_sample.clicked.connect(self.on_change_sample_names)
         self.pushButton_tdms2rtdc.clicked.connect(self.on_tdms2rtdc)
         self.pushButton_join.clicked.connect(self.on_join)
+        self.tableWidget.itemChanged.connect(self.on_table_text_changed)
         # menu actions
         self.action_add.triggered.connect(self.on_add_measurements)
         self.action_add_folder.triggered.connect(self.on_add_folder)
@@ -146,6 +147,17 @@ class DCKit(QtWidgets.QMainWindow):
     def on_join(self):
         """Join multiple RT-DC measurements"""
         pass
+
+    def on_table_text_changed(self):
+        """Reset sample name if set to empty string"""
+        curit = self.tableWidget.currentItem()
+        if curit is not None and curit.text() == "":
+            row = self.tableWidget.currentRow()
+            path_index = int(self.tableWidget.item(row, 0).text())
+            sample = meta_tool.get_sample_name(self.pathlist[path_index])
+            if isinstance(sample, bytes):
+                sample = sample.decode("utf-8")
+            self.tableWidget.item(row, 2).setText(sample)
 
     def on_tdms2rtdc(self):
         """Convert .tdms files to .rtdc files"""
