@@ -37,6 +37,15 @@ install:
 
 build: off
 
+test_script:
+  - "appveyor-retry pip install pytest"
+  - "appveyor-retry pip install coverage"
+  - "appveyor-retry pip install codecov"
+  - "coverage run --source=dckit ./setup.py test"
+  - "coverage report -m"
+  # Allow codecov to fail
+  - "codecov || exit 0"
+
 after_test:
   - "appveyor-retry pip install twine wheel"
   # If tests are successful, create a whl package for the project.

@@ -30,6 +30,8 @@ setup(
                       "h5py>=2.8.0",
                       "pyqt5",
                       ],
+    setup_requires=["pytest-runner"],
+    tests_require=["pytest", "urllib3"],
     python_requires='>=3.6, <4',
     entry_points={"gui_scripts" : ['dckit = dckit.__main__:main']},
     keywords=["RT-DC", "deformability", "cytometry", "zellmechanik"],
