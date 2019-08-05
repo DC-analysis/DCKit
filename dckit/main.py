@@ -5,11 +5,14 @@ import sys
 import traceback
 
 import dclab
+from dclab.cli import get_job_info
 import h5py
 import numpy as np
 from PyQt5 import uic, QtCore, QtWidgets
 from shapeout import meta_tool
+from shapeout import __version__ as soversion
 
+from . import history
 from ._version import version as __version__
 
 
@@ -109,17 +112,25 @@ class DCKit(QtWidgets.QMainWindow):
             path = self.pathlist[path_index]
             newname = self.tableWidget.item(row, 2).text()
             oldname = meta_tool.get_sample_name(path)
+            if isinstance(oldname, bytes):
+                oldname = oldname.decode('utf_8')
             # compare sample names bytes-insensitive
-            if np.string_(newname) != np.string_(oldname):
+            if newname != oldname:
                 if path.suffix == ".tdms":
                     # not supported for tdms files
                     invalid.append(path)
                 else:
                     # change sample name
                     with h5py.File(path, "a") as h5:
-                        h5.attrs["experiment:sample"] = np.string_(newname)
-                    # add an entry to the log...
-                    pass
+                        h5.attrs["experiment:sample"] = np.string_(
+                            newname.encode("utf-8"))
+                    # add entry to the log
+                    task_dict = {
+                        "name": "update attributes",
+                        "old": {"experiment:sample": oldname},
+                        "new": {"experiment:sample": newname},
+                        }
+                    append_execution_log(path, task_dict)
         if invalid:
             raise ValueError("Changing the sample name for .tdms files is "
                              + "not supported! Please convert the files to "
@@ -139,6 +150,13 @@ class DCKit(QtWidgets.QMainWindow):
     def on_tdms2rtdc(self):
         """Convert .tdms files to .rtdc files"""
         pass
+
+
+def append_execution_log(path, task_dict):
+    info = get_job_info()
+    info["libraries"]["shapeout"] = soversion
+    info["task"] = task_dict
+    history.append_history(path, info)
 
 
 def excepthook(etype, value, trace):

@@ -2,6 +2,7 @@ import json
 import pathlib
 
 import dclab
+import h5py
 
 
 def append_history(path, hdict):
@@ -54,7 +55,13 @@ def write_history(path, hlist):
         Full history (containing history elements)
     """
     path = pathlib.Path(path)
+    # remove previous log
+    with h5py.File(path) as h5:
+        if "dckit-history" in h5["logs"]:
+            del h5["logs"]["dckit-history"]
+    # dump json log
     hlog = json.dumps(hlist, sort_keys=True, indent=2).split("\n")
+    # write dump as log
     with dclab.rtdc_dataset.write(
             path_or_h5file=path,
             logs={"dckit-history": hlog},
