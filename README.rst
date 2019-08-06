@@ -4,9 +4,11 @@
 |PyPI Version| |Status Win|
 
 
-**DCKit** is a graphical toolkit for performing several tasks that
-would otherwise be only available via the
-dclab command line interface or via external tools such as HDFView.
+**DCKit** is a graphical toolkit for performing several data editing
+tasks that would otherwise be only available via the
+`dclab command-line interface <https://dclab.readthedocs.io/en/stable/sec_cli.html>`__
+or (for the .rtdc file format) via external tools such as
+`HDFView <https://www.hdfgroup.org/downloads/hdfview/>`__.
 
 
 Installation
