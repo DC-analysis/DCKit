@@ -1,3 +1,5 @@
+0.2.2
+ - ci: disable console on appveyor build
 0.2.1
  - ci: fix appveyor build
 0.2.0
