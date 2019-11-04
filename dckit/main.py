@@ -56,7 +56,7 @@ class DCKit(QtWidgets.QMainWindow):
             except BaseException:
                 # stop doing anything
                 continue
-            self.pathlist.append(path)
+            self.pathlist.append(pathlib.Path(path))
             datas.append(info)
         # populate table widget
         for info in datas:
@@ -154,6 +154,7 @@ class DCKit(QtWidgets.QMainWindow):
     def on_change_sample_names(self):
         """Update the sample names of the datasets"""
         invalid = []
+        details = []
         for row in range(self.tableWidget.rowCount()):
             path_index = int(self.tableWidget.item(row, 0).text())
             path = self.pathlist[path_index]
@@ -178,11 +179,34 @@ class DCKit(QtWidgets.QMainWindow):
                         "new": {"experiment:sample": newname},
                         }
                     append_execution_log(path, task_dict)
+                    details.append("- {}: {} -> {}".format(path, oldname,
+                                                           newname))
         if invalid:
-            raise ValueError("Changing the sample name for .tdms files is "
-                             + "not supported! Please convert the files to "
-                             + "the .rtdc file format. Affected files are:\n"
-                             + "\n".join([str(p) for p in invalid]))
+            # Show an error dialog for the tdms files
+            msg = QtWidgets.QMessageBox()
+            msg.setIcon(QtWidgets.QMessageBox.Critical)
+            msg.setText("Renaming .tdms sample names not supported!")
+            msg.setInformativeText(
+                "Changing the sample name for .tdms files is "
+                + "not supported! Please convert the files to "
+                + "the .rtdc file format.")
+            msg.setWindowTitle("Unsupported action")
+            msg.setDetailedText("Affected files are:\n"
+                                + "\n".join([str(p) for p in invalid]))
+            msg.exec_()
+
+        # finally, show the feedback dialog
+        msg = QtWidgets.QMessageBox()
+        if len(details):
+            msg.setIcon(QtWidgets.QMessageBox.Information)
+            msg.setText("Successfully renamed sample names!")
+            msg.setWindowTitle("Success")
+            msg.setDetailedText("\n".join(details))
+        else:
+            msg.setIcon(QtWidgets.QMessageBox.Warning)
+            msg.setText("Nothing to do!")
+            msg.setWindowTitle("Warning")
+        msg.exec_()
 
     def on_clear_measurements(self):
         """Clear the table"""
