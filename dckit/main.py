@@ -6,6 +6,7 @@ import traceback
 
 import dclab
 from dclab.cli import get_job_info
+import hashlib
 import h5py
 import numpy
 from PyQt5 import uic, QtCore, QtWidgets
@@ -177,7 +178,7 @@ class DCKit(QtWidgets.QMainWindow):
                         "name": "update attributes",
                         "old": {"experiment:sample": oldname},
                         "new": {"experiment:sample": newname},
-                        }
+                    }
                     append_execution_log(path, task_dict)
                     details.append("- {}: {} -> {}".format(path, oldname,
                                                            newname))
@@ -192,7 +193,7 @@ class DCKit(QtWidgets.QMainWindow):
                 + "the .rtdc file format.")
             msg.setWindowTitle("Unsupported action")
             msg.setDetailedText("Affected files are:\n"
-                                + "\n".join([str(p) for p in invalid]))
+                                + "\n\n".join([str(p) for p in invalid]))
             msg.exec_()
 
         # finally, show the feedback dialog
@@ -201,7 +202,7 @@ class DCKit(QtWidgets.QMainWindow):
             msg.setIcon(QtWidgets.QMessageBox.Information)
             msg.setText("Successfully renamed sample names!")
             msg.setWindowTitle("Success")
-            msg.setDetailedText("\n".join(details))
+            msg.setDetailedText("\n\n".join(details))
         else:
             msg.setIcon(QtWidgets.QMessageBox.Warning)
             msg.setText("Nothing to do!")
@@ -229,7 +230,64 @@ class DCKit(QtWidgets.QMainWindow):
 
     def on_tdms2rtdc(self):
         """Convert .tdms files to .rtdc files"""
-        pass
+        # Open the target directory
+        pout = QtWidgets.QFileDialog.getExistingDirectory()
+        details = []
+        if pout:
+            pout = pathlib.Path(pout)
+            for row in range(self.tableWidget.rowCount()):
+                path_index = int(self.tableWidget.item(row, 0).text())
+                path = self.pathlist[path_index]
+                newname = self.tableWidget.item(row, 2).text()
+                prtdc = pout / "M{}_{}_{}.rtdc".format(
+                    meta_tool.get_run_index(path),
+                    # deal with unicode characters (replace with "?")
+                    newname.replace(" ", "_").encode(
+                        "utf-8").decode("ascii",
+                                        errors="replace").replace("\ufffd",
+                                                                  "?"),
+                    sha256(path)[:8])
+                invalid = []
+                if path.suffix == ".tdms":
+                    task_dict = {
+                        "name": "convert .tdms to .rtdc",
+                    }
+                    dclab.cli.tdms2rtdc(path_tdms=path,
+                                        path_rtdc=prtdc,
+                                        compute_features=False,
+                                        skip_initial_empty_image=True,
+                                        verbose=False)
+                    # update sample name
+                    with h5py.File(prtdc, "a") as h5:
+                        h5.attrs["experiment:sample"] = numpy.string_(
+                            newname.encode("utf-8"))
+                    append_execution_log(prtdc, task_dict)
+                    details.append("{} -> {}".format(path, prtdc))
+                else:
+                    # do not do anything with .rtdc files
+                    invalid.append(path)
+        if invalid:
+            # Show an error dialog for the tdms files
+            msg = QtWidgets.QMessageBox()
+            msg.setIcon(QtWidgets.QMessageBox.Critical)
+            msg.setText("Only .tdms files supported as input!")
+            msg.setWindowTitle("Unsupported action")
+            msg.setDetailedText("Affected files are:\n"
+                                + "\n\n".join([str(p) for p in invalid]))
+            msg.exec_()
+
+        # finally, show the feedback dialog
+        msg = QtWidgets.QMessageBox()
+        if len(details):
+            msg.setIcon(QtWidgets.QMessageBox.Information)
+            msg.setText("Successfully converted .tdms to .rtdc!")
+            msg.setWindowTitle("Success")
+            msg.setDetailedText("\n\n".join(details))
+        else:
+            msg.setIcon(QtWidgets.QMessageBox.Warning)
+            msg.setText("Nothing to do!")
+            msg.setWindowTitle("Warning")
+        msg.exec_()
 
 
 def append_execution_log(path, task_dict):
@@ -267,6 +325,10 @@ def excepthook(etype, value, trace):
         cb = QtWidgets.QApplication.clipboard()
         cb.clear(mode=cb.Clipboard)
         cb.setText(exception)
+
+
+def sha256(path):
+    return dclab.rtdc_dataset.util.hashfile(path, hasher_class=hashlib.sha256)
 
 
 # Make Ctr+C close the app
