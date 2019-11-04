@@ -30,7 +30,7 @@ install:
   - "appveyor-retry pip install --no-deps shapeout"
   - "appveyor-retry pip install dclab[all]"
   # use dev-version of shapeout, b/c its release cycle is slower
-  - "appveyor-retry pip install git+git://github.com/ZELLMECHANIK-DRESDEN/shapeout.git"
+  - "appveyor-retry pip install git+git://github.com/ZELLMECHANIK-DRESDEN/shapeout.git@develop"
   - "appveyor-retry pip install -e ."
   # Install pyinstaller (includes dependency for pywin32)
   - "appveyor-retry pip install pyinstaller==3.5"
