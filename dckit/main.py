@@ -4,11 +4,12 @@ import signal
 import sys
 import traceback
 
+import dclab
 from dclab.cli import get_job_info
 import h5py
-import numpy as np
+import numpy
 from PyQt5 import uic, QtCore, QtWidgets
-from shapeout import __version__ as soversion
+import shapeout
 
 from . import history
 from . import meta_tool
@@ -28,10 +29,13 @@ class DCKit(QtWidgets.QMainWindow):
         self.pushButton_tdms2rtdc.clicked.connect(self.on_tdms2rtdc)
         self.pushButton_join.clicked.connect(self.on_join)
         self.tableWidget.itemChanged.connect(self.on_table_text_changed)
-        # menu actions
+        # File menu
         self.action_add.triggered.connect(self.on_add_measurements)
         self.action_add_folder.triggered.connect(self.on_add_folder)
         self.action_clear.triggered.connect(self.on_clear_measurements)
+        # Help menu
+        self.actionSoftware.triggered.connect(self.on_action_software)
+        self.actionAbout.triggered.connect(self.on_action_about)
         #: contains all imported paths
         self.pathlist = []
 
@@ -96,6 +100,32 @@ class DCKit(QtWidgets.QMainWindow):
                 pathlist.append(pp)
         self.append_paths(pathlist)
 
+    def on_action_about(self):
+        about_text = "DCKit is a tool for managing RT-DC data.\n\n" \
+            + "Author: Paul Müller\n" \
+            + "Code: https://github.com/ZELLMECHANIK-DRESDEN/DCKit\n"
+        QtWidgets.QMessageBox.about(self,
+                                    "DCKit {}".format(__version__),
+                                    about_text)
+
+    def on_action_software(self):
+        libs = [dclab,
+                h5py,
+                numpy,
+                shapeout,
+                ]
+        sw_text = "DCKit {}\n\n".format(__version__)
+        sw_text += "Python {}\n\n".format(sys.version)
+        sw_text += "Modules:\n"
+        for lib in libs:
+            sw_text += "- {} {}\n".format(lib.__name__, lib.__version__)
+        sw_text += "- PyQt5 {}\n".format(QtCore.QT_VERSION_STR)
+        if hasattr(sys, 'frozen'):
+            sw_text += "\nThis executable has been created using PyInstaller."
+        QtWidgets.QMessageBox.information(self,
+                                          "Software",
+                                          sw_text)
+
     def on_add_folder(self):
         """Search folder for RT-DC data and add to table"""
         # show a dialog for selecting folder
@@ -139,7 +169,7 @@ class DCKit(QtWidgets.QMainWindow):
                 else:
                     # change sample name
                     with h5py.File(path, "a") as h5:
-                        h5.attrs["experiment:sample"] = np.string_(
+                        h5.attrs["experiment:sample"] = numpy.string_(
                             newname.encode("utf-8"))
                     # add entry to the log
                     task_dict = {
@@ -180,7 +210,7 @@ class DCKit(QtWidgets.QMainWindow):
 
 def append_execution_log(path, task_dict):
     info = get_job_info()
-    info["libraries"]["shapeout"] = soversion
+    info["libraries"]["shapeout"] = shapeout.__version__
     info["task"] = task_dict
     history.append_history(path, info)
 
