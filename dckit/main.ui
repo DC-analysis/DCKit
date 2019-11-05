@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1099</width>
-    <height>634</height>
+    <width>1002</width>
+    <height>632</height>
    </rect>
   </property>
   <property name="acceptDrops">
@@ -87,6 +87,9 @@
       <layout class="QVBoxLayout" name="verticalLayout">
        <item>
         <widget class="QPushButton" name="pushButton_sample">
+         <property name="toolTip">
+          <string>update the sample name for individual .rtdc files</string>
+         </property>
          <property name="text">
           <string>Update sample names</string>
          </property>
@@ -97,8 +100,21 @@
          <property name="enabled">
           <bool>true</bool>
          </property>
+         <property name="toolTip">
+          <string>convert .tdms measurements to the .rtdc file format (includes loss-less compression)</string>
+         </property>
          <property name="text">
           <string>Convert .tdms to .rtdc</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="pushButton">
+         <property name="toolTip">
+          <string>compress .rtdc files to save disk space (loss-less)</string>
+         </property>
+         <property name="text">
+          <string>Compress .rtdc data</string>
          </property>
         </widget>
        </item>
@@ -106,6 +122,9 @@
         <widget class="QPushButton" name="pushButton_join">
          <property name="enabled">
           <bool>false</bool>
+         </property>
+         <property name="toolTip">
+          <string>join multiple measurements into a single .rtdc file ( (includes loss-less compression)</string>
          </property>
          <property name="text">
           <string>Join measurements</string>
@@ -135,7 +154,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1099</width>
+     <width>1002</width>
      <height>22</height>
     </rect>
    </property>
