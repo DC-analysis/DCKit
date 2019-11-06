@@ -26,6 +26,7 @@ class DCKit(QtWidgets.QMainWindow):
         # Disable native menubar (e.g. on Mac)
         self.menubar.setNativeMenuBar(False)
         # signals
+        self.pushButton_compress.clicked.connect(self.on_compress)
         self.pushButton_sample.clicked.connect(self.on_change_sample_names)
         self.pushButton_tdms2rtdc.clicked.connect(self.on_tdms2rtdc)
         self.pushButton_join.clicked.connect(self.on_join)
@@ -152,6 +153,61 @@ class DCKit(QtWidgets.QMainWindow):
             # add to list
             self.append_paths(pathlist)
 
+    def on_compress(self):
+        """Compress .rtdc data losslessly"""
+        # Open the target directory
+        pout = QtWidgets.QFileDialog.getExistingDirectory()
+        details = []
+        if pout:
+            pout = pathlib.Path(pout)
+            for row in range(self.tableWidget.rowCount()):
+                path_index = int(self.tableWidget.item(row, 0).text())
+                path = self.pathlist[path_index]
+                newname = self.tableWidget.item(row, 2).text()
+                prtdc = pout / get_rtdc_output_name(origin_path=path,
+                                                    sample_name=newname)
+                invalid = []
+                if path.suffix == ".rtdc":
+                    task_dict = {
+                        "name": "compress HDF5 data",
+                    }
+                    dclab.cli.tdms2rtdc(path_tdms=path,
+                                        path_rtdc=prtdc,
+                                        compute_features=False,
+                                        skip_initial_empty_image=True,
+                                        verbose=False)
+                    # update sample name
+                    with h5py.File(prtdc, "a") as h5:
+                        h5.attrs["experiment:sample"] = numpy.string_(
+                            newname.encode("utf-8"))
+                    append_execution_log(prtdc, task_dict)
+                    details.append("{} -> {}".format(path, prtdc))
+                else:
+                    # do not do anything with .rtdc files
+                    invalid.append(path)
+        if invalid:
+            # Show an error dialog for the tdms files
+            msg = QtWidgets.QMessageBox()
+            msg.setIcon(QtWidgets.QMessageBox.Critical)
+            msg.setText("Only .tdms files supported as input!")
+            msg.setWindowTitle("Unsupported action")
+            msg.setDetailedText("Affected files are:\n"
+                                + "\n\n".join([str(p) for p in invalid]))
+            msg.exec_()
+
+        # finally, show the feedback dialog
+        msg = QtWidgets.QMessageBox()
+        if len(details):
+            msg.setIcon(QtWidgets.QMessageBox.Information)
+            msg.setText("Successfully converted .tdms to .rtdc!")
+            msg.setWindowTitle("Success")
+            msg.setDetailedText("\n\n".join(details))
+        else:
+            msg.setIcon(QtWidgets.QMessageBox.Warning)
+            msg.setText("Nothing to do!")
+            msg.setWindowTitle("Warning")
+        msg.exec_()
+
     def on_change_sample_names(self):
         """Update the sample names of the datasets"""
         invalid = []
@@ -239,14 +295,8 @@ class DCKit(QtWidgets.QMainWindow):
                 path_index = int(self.tableWidget.item(row, 0).text())
                 path = self.pathlist[path_index]
                 newname = self.tableWidget.item(row, 2).text()
-                prtdc = pout / "M{}_{}_{}.rtdc".format(
-                    meta_tool.get_run_index(path),
-                    # deal with unicode characters (replace with "?")
-                    newname.replace(" ", "_").encode(
-                        "utf-8").decode("ascii",
-                                        errors="replace").replace("\ufffd",
-                                                                  "?"),
-                    sha256(path)[:8])
+                prtdc = pout / get_rtdc_output_name(origin_path=path,
+                                                    sample_name=newname)
                 invalid = []
                 if path.suffix == ".tdms":
                     task_dict = {
@@ -325,6 +375,16 @@ def excepthook(etype, value, trace):
         cb = QtWidgets.QApplication.clipboard()
         cb.clear(mode=cb.Clipboard)
         cb.setText(exception)
+
+
+def get_rtdc_output_name(origin_path, sample_name):
+    name = "M{}_{}_{}.rtdc".format(
+        meta_tool.get_run_index(origin_path),
+        # deal with unicode characters (replace with "?")
+        sample_name.replace(" ", "_").encode(
+            "utf-8").decode("ascii", errors="replace").replace("\ufffd", "?"),
+        sha256(origin_path)[:8])
+    return name
 
 
 def sha256(path):
