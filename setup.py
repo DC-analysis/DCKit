@@ -25,8 +25,8 @@ setup(
     description=description,
     long_description=open('README.rst').read() if exists('README.rst') else '',
     install_requires=[# pin DCKit to a specific version of Shape-Out and dclab
-                      "shapeout==0.9.6.post5",
-                      "dclab[all]==0.17.0",
+                      "shapeout==0.9.6.post6",
+                      "dclab[all]==0.17.1",
                       "h5py>=2.8.0",
                       "pyqt5",
                       ],
