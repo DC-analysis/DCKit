@@ -88,7 +88,7 @@
        <item>
         <widget class="QPushButton" name="pushButton_sample">
          <property name="toolTip">
-          <string>update the sample name of individual .rtdc files</string>
+          <string>update the sample name of individual .rtdc files in-place</string>
          </property>
          <property name="text">
           <string>Update sample names</string>

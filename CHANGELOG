@@ -1,4 +1,8 @@
-0.2.2
+0.3.0
+ - feat: add option to compress an .rtdc dataset
+ - enh: bump dclab to 0.17.0 (data compression always set)
+ - enh: add measurement date to output filenames
+ - enh: extract warning logs to ouptut directory
  - ci: disable console on appveyor build
 0.2.1
  - ci: fix appveyor build

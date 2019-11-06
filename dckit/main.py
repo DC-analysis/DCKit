@@ -171,16 +171,15 @@ class DCKit(QtWidgets.QMainWindow):
                     task_dict = {
                         "name": "compress HDF5 data",
                     }
-                    dclab.cli.tdms2rtdc(path_tdms=path,
-                                        path_rtdc=prtdc,
-                                        compute_features=False,
-                                        skip_initial_empty_image=True,
-                                        verbose=False)
+                    dclab.cli.compress(path_in=path, path_out=prtdc)
                     # update sample name
                     with h5py.File(prtdc, "a") as h5:
                         h5.attrs["experiment:sample"] = numpy.string_(
                             newname.encode("utf-8"))
                     append_execution_log(prtdc, task_dict)
+                    # write any warnings to separate log files
+                    extract_warning_logs(prtdc)
+                    # update list for UI
                     details.append("{} -> {}".format(path, prtdc))
                 else:
                     # do not do anything with .rtdc files
@@ -236,6 +235,7 @@ class DCKit(QtWidgets.QMainWindow):
                         "new": {"experiment:sample": newname},
                     }
                     append_execution_log(path, task_dict)
+                    # update list for UI
                     details.append("- {}: {} -> {}".format(path, oldname,
                                                            newname))
         if invalid:
@@ -312,6 +312,9 @@ class DCKit(QtWidgets.QMainWindow):
                         h5.attrs["experiment:sample"] = numpy.string_(
                             newname.encode("utf-8"))
                     append_execution_log(prtdc, task_dict)
+                    # write any warnings to separate log files
+                    extract_warning_logs(prtdc)
+                    # update list for UI
                     details.append("{} -> {}".format(path, prtdc))
                 else:
                     # do not do anything with .rtdc files
@@ -377,8 +380,18 @@ def excepthook(etype, value, trace):
         cb.setText(exception)
 
 
+def extract_warning_logs(path):
+    path = pathlib.Path(path)
+    with dclab.new_dataset(path) as ds:
+        for lname in ds.logs:
+            if lname.count("warnings"):
+                plog = path.with_name(path.stem + "_" + lname + ".log")
+                plog.write_text("\r\n".join(ds.logs[lname]))
+
+
 def get_rtdc_output_name(origin_path, sample_name):
-    name = "M{}_{}_{}.rtdc".format(
+    name = "{}_M{}_{}_{}.rtdc".format(
+        meta_tool.get_date(origin_path),
         meta_tool.get_run_index(origin_path),
         # deal with unicode characters (replace with "?")
         sample_name.replace(" ", "_").encode(

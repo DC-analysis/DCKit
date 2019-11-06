@@ -6,6 +6,12 @@ from shapeout import meta_tool
 from shapeout.meta_tool import find_data  # noqa: F401
 
 
+def get_date(path):
+    with dclab.new_dataset(path) as ds:
+        date = ds.config["experiment"]["date"]
+    return date
+
+
 def get_sample_name(path):
     sample = meta_tool.get_sample_name(path)
     if isinstance(sample, bytes):
