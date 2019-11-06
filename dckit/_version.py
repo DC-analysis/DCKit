@@ -102,7 +102,7 @@ if True:  # pragma: no cover
             # If it is under version control, it should be located
             # one hierarchy down from the repository root (either
             # __file__ is "docs/conf.py" or "package_name/_version.py".
-            if len(split(loc)) == 1:
+            if len(split(loc)) == 2:
                 try:
                     git_revision = _minimal_ext_cmd(['git', 'describe',
                                                      '--tags', 'HEAD'])
