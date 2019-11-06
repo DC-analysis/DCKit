@@ -27,7 +27,7 @@ If you have Python 3 installed, you may also use pip to install DCKit:
 Usage
 -----
 The interface is mostly self-explanatory. Add measurements via the options
-in the ``File`` menu or by drag-and-droping files into DCKit. You may edit
+in the ``File`` menu or by drag-and-dropping files into DCKit. You may edit
 entries in the ``Sample`` column and apply the changes via the
 ``Update sample names`` button on the right.
 
@@ -46,4 +46,3 @@ Testing
    :target: https://pypi.python.org/pypi/dckit
 .. |Status Win| image:: https://img.shields.io/appveyor/ci/paulmueller/DCKIT/master.svg
    :target: https://ci.appveyor.com/project/paulmueller/DCKit
-
