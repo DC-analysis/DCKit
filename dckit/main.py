@@ -401,7 +401,7 @@ def get_rtdc_output_name(origin_path, sample_name):
 
 
 def sha256(path):
-    return dclab.rtdc_dataset.util.hashfile(path, hasher_class=hashlib.sha256)
+    return dclab.util.hashfile(path, hasher_class=hashlib.sha256)
 
 
 # Make Ctr+C close the app
