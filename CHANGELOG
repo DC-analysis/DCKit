@@ -1,3 +1,5 @@
+0.4.1
+ - setup: bump shapeout from 0.9.6.post6 to 0.9.8
 0.4.0
  - feat: automatically check for updates on startup
  - fix: remove output files when an error occured during conversion (#2)
