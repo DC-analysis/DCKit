@@ -1,6 +1,7 @@
 0.4.0
  - feat: automatically check for updates on startup
  - fix: remove output files when an error occured during conversion (#2)
+ - setup: bump dclab from 0.17.1 to 0.20.0
 0.3.0
  - feat: add option to compress an .rtdc dataset
  - enh: bump dclab to 0.17.1 (data compression always set)
