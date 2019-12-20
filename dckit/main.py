@@ -289,6 +289,8 @@ class DCKit(QtWidgets.QMainWindow):
         # Open the target directory
         pout = QtWidgets.QFileDialog.getExistingDirectory()
         details = []
+        errors = []
+        invalid = []
         if pout:
             pout = pathlib.Path(pout)
             for row in range(self.tableWidget.rowCount()):
@@ -297,25 +299,30 @@ class DCKit(QtWidgets.QMainWindow):
                 newname = self.tableWidget.item(row, 2).text()
                 prtdc = pout / get_rtdc_output_name(origin_path=path,
                                                     sample_name=newname)
-                invalid = []
                 if path.suffix == ".tdms":
                     task_dict = {
                         "name": "convert .tdms to .rtdc",
                     }
-                    dclab.cli.tdms2rtdc(path_tdms=path,
-                                        path_rtdc=prtdc,
-                                        compute_features=False,
-                                        skip_initial_empty_image=True,
-                                        verbose=False)
-                    # update sample name
-                    with h5py.File(prtdc, "a") as h5:
-                        h5.attrs["experiment:sample"] = numpy.string_(
-                            newname.encode("utf-8"))
-                    append_execution_log(prtdc, task_dict)
-                    # write any warnings to separate log files
-                    extract_warning_logs(prtdc)
-                    # update list for UI
-                    details.append("{} -> {}".format(path, prtdc))
+                    try:
+                        dclab.cli.tdms2rtdc(path_tdms=path,
+                                            path_rtdc=prtdc,
+                                            compute_features=False,
+                                            skip_initial_empty_image=True,
+                                            verbose=False)
+                    except BaseException:
+                        errors.append([path, traceback.format_exc()])
+                        if prtdc.exists():
+                            prtdc.unlink()
+                    else:
+                        # update sample name
+                        with h5py.File(prtdc, "a") as h5:
+                            h5.attrs["experiment:sample"] = numpy.string_(
+                                newname.encode("utf-8"))
+                        append_execution_log(prtdc, task_dict)
+                        # write any warnings to separate log files
+                        extract_warning_logs(prtdc)
+                        # update list for UI
+                        details.append("{} -> {}".format(path, prtdc))
                 else:
                     # do not do anything with .rtdc files
                     invalid.append(path)
@@ -325,8 +332,19 @@ class DCKit(QtWidgets.QMainWindow):
             msg.setIcon(QtWidgets.QMessageBox.Critical)
             msg.setText("Only .tdms files supported as input!")
             msg.setWindowTitle("Unsupported action")
-            msg.setDetailedText("Affected files are:\n"
+            msg.setDetailedText("Affected files are:\n\n"
                                 + "\n\n".join([str(p) for p in invalid]))
+            msg.exec_()
+
+        if errors:
+            # Show an error dialog for the files that could not be converted
+            msg = QtWidgets.QMessageBox()
+            msg.setIcon(QtWidgets.QMessageBox.Critical)
+            msg.setText("Some files could not be converted!")
+            msg.setWindowTitle("Unexpected Error")
+            msg.setDetailedText(
+                "Affected files are:\n\n"
+                + "\n\n".join(["{}:\n{}".format(*e) for e in errors]))
             msg.exec_()
 
         # finally, show the feedback dialog

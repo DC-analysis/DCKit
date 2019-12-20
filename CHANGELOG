@@ -1,3 +1,5 @@
+0.3.1
+ - fix: remove output files when an error occured during conversion (#2)
 0.3.0
  - feat: add option to compress an .rtdc dataset
  - enh: bump dclab to 0.17.1 (data compression always set)
