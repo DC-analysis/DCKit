@@ -14,6 +14,7 @@ import shapeout
 
 from . import history
 from . import meta_tool
+from . import update
 from ._version import version as __version__
 
 
@@ -23,6 +24,9 @@ class DCKit(QtWidgets.QMainWindow):
         path_ui = pkg_resources.resource_filename("dckit", "main.ui")
         uic.loadUi(path_ui, self)
         self.setWindowTitle("DCKit {}".format(__version__))
+        # update check
+        self._update_thread = None
+        self._update_worker = None
         # Disable native menubar (e.g. on Mac)
         self.menubar.setNativeMenuBar(False)
         # signals
@@ -40,6 +44,8 @@ class DCKit(QtWidgets.QMainWindow):
         self.actionAbout.triggered.connect(self.on_action_about)
         #: contains all imported paths
         self.pathlist = []
+        # Update Check
+        self.on_action_check_update(True)
 
     def append_paths(self, pathlist):
         """Append selected paths to table"""
@@ -109,6 +115,51 @@ class DCKit(QtWidgets.QMainWindow):
         QtWidgets.QMessageBox.about(self,
                                     "DCKit {}".format(__version__),
                                     about_text)
+
+    @QtCore.pyqtSlot(bool)
+    def on_action_check_update(self, b):
+        if b and self._update_thread is None:
+            self._update_thread = QtCore.QThread()
+            self._update_worker = update.UpdateWorker()
+            self._update_worker.moveToThread(self._update_thread)
+            self._update_worker.finished.connect(self._update_thread.quit)
+            self._update_worker.data_ready.connect(
+                self.on_action_check_update_finished)
+            self._update_thread.start()
+
+            version = __version__
+            ghrepo = "ZELLMECHANIK-DRESDEN/DCKit"
+
+            QtCore.QMetaObject.invokeMethod(self._update_worker,
+                                            'processUpdate',
+                                            QtCore.Qt.QueuedConnection,
+                                            QtCore.Q_ARG(str, version),
+                                            QtCore.Q_ARG(str, ghrepo),
+                                            )
+
+    @QtCore.pyqtSlot(dict)
+    def on_action_check_update_finished(self, mdict):
+        # cleanup
+        self._update_thread.quit()
+        self._update_thread.wait()
+        self._update_worker = None
+        self._update_thread = None
+        # display message box
+        ver = mdict["version"]
+        web = mdict["releases url"]
+        dlb = mdict["binary url"]
+        msg = QtWidgets.QMessageBox()
+        msg.setWindowTitle("DCKit {} available!".format(ver))
+        msg.setTextFormat(QtCore.Qt.RichText)
+        text = "You can install DCKit {} ".format(ver)
+        if dlb is not None:
+            text += 'from a <a href="{}">direct download</a>. '.format(dlb)
+        else:
+            text += 'by running `pip install --upgrade dckit`. '
+        text += "Visit the ".format(ver) \
+            + '<a href="{}">official release page</a>!'.format(web)
+        msg.setText(text)
+        msg.exec_()
 
     def on_action_software(self):
         libs = [dclab,
