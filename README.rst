@@ -1,7 +1,7 @@
 |DCKit|
 =======
 
-|PyPI Version| |Status Win|
+|PyPI Version| |Tests Status Linux macOS| |Tests Status Win| |Coverage Status|
 
 
 **DCKit** is a graphical toolkit for performing several data editing
@@ -44,5 +44,10 @@ Testing
 .. |DCKit| image:: https://raw.github.com/ZELLMECHANIK-DRESDEN/DCKit/master/docs/logo/dckit_h50.png
 .. |PyPI Version| image:: https://img.shields.io/pypi/v/dckit.svg
    :target: https://pypi.python.org/pypi/dckit
-.. |Status Win| image:: https://img.shields.io/appveyor/ci/paulmueller/DCKIT/master.svg
+.. |Test Status Win| image:: https://img.shields.io/appveyor/ci/paulmueller/DCKIT/master.svg
    :target: https://ci.appveyor.com/project/paulmueller/DCKit
+.. |Tests Status Linux macOS| image:: https://img.shields.io/travis/ZELLMECHANIK-DRESDEN/DCKit.svg?label=tests_linux_macos
+   :target: https://travis-ci.org/ZELLMECHANIK-DRESDEN/DCKit
+.. |Coverage Status| image:: https://img.shields.io/codecov/c/github/ZELLMECHANIK-DRESDEN/DCKit/master.svg
+   :target: https://codecov.io/gh/ZELLMECHANIK-DRESDEN/DCKit
+
