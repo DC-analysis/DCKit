@@ -50,4 +50,3 @@ Testing
    :target: https://travis-ci.org/ZELLMECHANIK-DRESDEN/DCKit
 .. |Coverage Status| image:: https://img.shields.io/codecov/c/github/ZELLMECHANIK-DRESDEN/DCKit/master.svg
    :target: https://codecov.io/gh/ZELLMECHANIK-DRESDEN/DCKit
-
