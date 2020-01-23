@@ -44,7 +44,7 @@ Testing
 .. |DCKit| image:: https://raw.github.com/ZELLMECHANIK-DRESDEN/DCKit/master/docs/logo/dckit_h50.png
 .. |PyPI Version| image:: https://img.shields.io/pypi/v/dckit.svg
    :target: https://pypi.python.org/pypi/dckit
-.. |Test Status Win| image:: https://img.shields.io/appveyor/ci/paulmueller/DCKit/master.svg?label=build_win
+.. |Tests Status Win| image:: https://img.shields.io/appveyor/ci/paulmueller/DCKit/master.svg?label=build_win
    :target: https://ci.appveyor.com/project/paulmueller/DCKit
 .. |Tests Status Linux macOS| image:: https://img.shields.io/travis/ZELLMECHANIK-DRESDEN/DCKit.svg?label=tests_linux_macos
    :target: https://travis-ci.org/ZELLMECHANIK-DRESDEN/DCKit
