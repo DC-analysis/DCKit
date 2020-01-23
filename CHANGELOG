@@ -1,7 +1,7 @@
 0.4.2
  - setup: bump shapeout from 0.9.8 to 1.0.0
  - setup: bump dclab from 0.20.0 to 0.20.3
- - build: bump pyinstaller from 3.5 to 3.6
+ - build: bump pyinstaller from 3.5 to 3.6 (#3)
 0.4.1
  - setup: bump shapeout from 0.9.6.post6 to 0.9.8
 0.4.0
