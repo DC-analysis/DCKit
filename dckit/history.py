@@ -56,7 +56,7 @@ def write_history(path, hlist):
     """
     path = pathlib.Path(path)
     # remove previous log
-    with h5py.File(path) as h5:
+    with h5py.File(path, "a") as h5:
         if "dckit-history" in h5["logs"]:
             del h5["logs"]["dckit-history"]
     # dump json log
