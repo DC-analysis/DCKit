@@ -1,4 +1,5 @@
 import json
+import numbers
 import pathlib
 
 import dclab
@@ -19,6 +20,19 @@ def append_history(path, hdict):
     hlist = read_history(path)
     hlist.append(hdict)
     write_history(path, hlist)
+
+
+def default_json_converter(obj):
+    """is a function that should return a serializable version
+    of obj or raise TypeError.
+    """
+    if isinstance(obj, numbers.Integral):
+        return int(obj)
+    elif isinstance(obj, bytes):
+        return obj.decode("utf-8")
+    else:
+        raise TypeError(
+            "Object of type '{}' is not JSON serializable".format(type(obj)))
 
 
 def read_history(path):
@@ -60,7 +74,11 @@ def write_history(path, hlist):
         if "dckit-history" in h5["logs"]:
             del h5["logs"]["dckit-history"]
     # dump json log
-    hlog = json.dumps(hlist, sort_keys=True, indent=2).split("\n")
+    hlog = json.dumps(hlist,
+                      sort_keys=True,
+                      indent=2,
+                      default=default_json_converter,
+                      ).split("\n")
     # write dump as log
     with dclab.rtdc_dataset.write(
             path_or_h5file=path,
