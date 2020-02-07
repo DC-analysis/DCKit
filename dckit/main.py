@@ -1,3 +1,4 @@
+import copy
 import pathlib
 import pkg_resources
 import signal
@@ -9,10 +10,11 @@ from dclab.cli import get_job_info
 import hashlib
 import h5py
 import numpy
-from PyQt5 import uic, QtCore, QtWidgets
+from PyQt5 import uic, QtCore, QtGui, QtWidgets
 import shapeout
 
 from . import history
+from . import dlg_icheck
 from . import meta_tool
 from . import update
 from ._version import version as __version__
@@ -30,9 +32,10 @@ class DCKit(QtWidgets.QMainWindow):
         # Disable native menubar (e.g. on Mac)
         self.menubar.setNativeMenuBar(False)
         # signals
-        self.pushButton_compress.clicked.connect(self.on_compress)
-        self.pushButton_sample.clicked.connect(self.on_change_sample_names)
-        self.pushButton_tdms2rtdc.clicked.connect(self.on_tdms2rtdc)
+        self.pushButton_integrity.clicked.connect(self.on_task_integrity_all)
+        self.pushButton_compress.clicked.connect(self.on_task_compress)
+        self.pushButton_metadata.clicked.connect(self.on_task_metadata)
+        self.pushButton_tdms2rtdc.clicked.connect(self.on_task_tdms2rtdc)
         self.pushButton_join.clicked.connect(self.on_join)
         self.tableWidget.itemChanged.connect(self.on_table_text_changed)
         # File menu
@@ -42,8 +45,10 @@ class DCKit(QtWidgets.QMainWindow):
         # Help menu
         self.actionSoftware.triggered.connect(self.on_action_software)
         self.actionAbout.triggered.connect(self.on_action_about)
-        #: contains all imported paths
+        #: contains all imported paths (index is DCKit-id)
         self.pathlist = []
+        # contains all integrity buttons (keys are DCKit-ids)
+        self.integrity_buttons = {}
         # Update Check
         self.on_action_check_update(True)
 
@@ -55,11 +60,12 @@ class DCKit(QtWidgets.QMainWindow):
         for path in pathlist:
             try:  # avoid any errors
                 info = {"DCKit-id": (0, len(self.pathlist)),
-                        "path": (1, path),
-                        "sample": (2, meta_tool.get_sample_name(path)),
-                        "run index": (3, meta_tool.get_run_index(path)),
-                        "event count": (4, meta_tool.get_event_count(path)),
-                        "flow rate": (5, meta_tool.get_flow_rate(path)),
+                        "integrity": (1, None),
+                        "path": (2, path),
+                        "sample": (3, meta_tool.get_sample_name(path)),
+                        "run index": (4, meta_tool.get_run_index(path)),
+                        "event count": (5, meta_tool.get_event_count(path)),
+                        "flow rate": (6, meta_tool.get_flow_rate(path)),
                         }
             except BaseException:
                 # stop doing anything
@@ -72,21 +78,39 @@ class DCKit(QtWidgets.QMainWindow):
             self.tableWidget.insertRow(row)
             for key in info:
                 col, val = info[key]
-                item = QtWidgets.QTableWidgetItem("{}".format(val))
-                if key == "sample":
-                    # allow editing sample name
-                    item.setFlags(QtCore.Qt.ItemIsEnabled
-                                  | QtCore.Qt.ItemIsEditable)
-                elif key == "path":
-                    item.setText(pathlib.Path(val).name)
-                    item.setToolTip(str(val))
-                    item.setFlags(QtCore.Qt.ItemIsEnabled)
-                elif key == "flow rate":
-                    item.setText("{:.5f}".format(val))
-                    item.setFlags(QtCore.Qt.ItemIsEnabled)
+                if key == "integrity":
+                    # button
+                    btn = QtWidgets.QToolButton(self)
+                    btn.setText("run check")
+                    self.tableWidget.setCellWidget(row, col, btn)
+                    btn.clicked.connect(self.on_integrity_check)
+                    self.integrity_buttons[info["DCKit-id"][1]] = btn
                 else:
-                    item.setFlags(QtCore.Qt.ItemIsEnabled)
-                self.tableWidget.setItem(row, col, item)
+                    # text
+                    item = QtWidgets.QTableWidgetItem("{}".format(val))
+                    if key == "sample":
+                        # allow editing sample name
+                        item.setFlags(QtCore.Qt.ItemIsEnabled
+                                      | QtCore.Qt.ItemIsEditable)
+                    elif key == "path":
+                        item.setText(pathlib.Path(val).name)
+                        item.setToolTip(str(val))
+                        item.setFlags(QtCore.Qt.ItemIsEnabled)
+                    elif key == "flow rate":
+                        item.setText("{:.5f}".format(val))
+                        item.setFlags(QtCore.Qt.ItemIsEnabled)
+                    else:
+                        item.setFlags(QtCore.Qt.ItemIsEnabled)
+                    self.tableWidget.setItem(row, col, item)
+        if datas:
+            # set header widhts
+            self.tableWidget.setColumnWidth(info["DCKit-id"][0], 10)
+            self.tableWidget.setColumnWidth(info["integrity"][0], 100)
+            self.tableWidget.setColumnWidth(info["path"][0], 180)
+            self.tableWidget.setColumnWidth(info["run index"][0], 80)
+            self.tableWidget.setColumnWidth(info["flow rate"][0], 100)
+            self.tableWidget.setColumnWidth(info["event count"][0], 80)
+            self.tableWidget.setColumnWidth(info["sample"][0], 300)
         QtWidgets.QApplication.restoreOverrideCursor()
 
     def dragEnterEvent(self, e):
@@ -107,6 +131,27 @@ class DCKit(QtWidgets.QMainWindow):
             elif pp.suffix in [".rtdc", ".tdms"]:
                 pathlist.append(pp)
         self.append_paths(pathlist)
+
+    def get_metadata(self, row):
+        path = self.get_path(row)
+        # get metadata
+        metadata = copy.deepcopy(dlg_icheck.IntegrityCheckDialog.
+                                 user_metadata.get(path, {}))
+        # update sample name
+        newname = self.tableWidget.item(row, 3).text()
+        if "experiment" not in metadata:
+            metadata["experiment"] = {}
+        metadata["experiment"]["sample"] = newname
+        return metadata
+
+    def get_path(self, row):
+        """Return dataset path from a given row
+
+        This is necessary, because the user can sort columns
+        """
+        path_index = int(self.tableWidget.item(row, 0).text())
+        path = self.pathlist[path_index]
+        return path
 
     def on_action_about(self):
         about_text = "DCKit is a tool for managing RT-DC data.\n\n" \
@@ -204,7 +249,52 @@ class DCKit(QtWidgets.QMainWindow):
             # add to list
             self.append_paths(pathlist)
 
-    def on_compress(self):
+    def on_clear_measurements(self):
+        """Clear the table"""
+        for _ in range(len(self.pathlist)):
+            self.tableWidget.removeRow(0)
+        self.pathlist.clear()
+        self.integrity_buttons.clear()
+
+    def on_integrity_check(self, b=False, button=None):
+        if button is None:
+            button = self.sender()
+            skip_ui = False
+        else:
+            skip_ui = True
+        # find DCKit-id
+        for did in self.integrity_buttons:
+            if button is self.integrity_buttons[did]:
+                break
+        else:
+            raise ValueError("Could not find button {}".format(button))
+        # get path
+        path = self.pathlist[did]
+        dlg = dlg_icheck.IntegrityCheckDialog(self, path)
+        if skip_ui:
+            dlg.done(True)
+        else:
+            dlg.exec_()
+        button.setText(dlg.state)
+        colors = {"failed": "#A50000",
+                  "tolerable": "#7A6500",
+                  "passed": "#007A04"}
+        button.setStyleSheet("color: {}".format(colors[dlg.state]))
+
+    def on_join(self):
+        """Join multiple RT-DC measurements"""
+        pass
+
+    def on_table_text_changed(self):
+        """Reset sample name if set to empty string"""
+        curit = self.tableWidget.currentItem()
+        if curit is not None and curit.text() == "":
+            row = self.tableWidget.currentRow()
+            path = self.get_path(row)
+            sample = meta_tool.get_sample_name(path)
+            self.tableWidget.item(row, 3).setText(sample)
+
+    def on_task_compress(self):
         """Compress .rtdc data losslessly"""
         # Open the target directory
         pout = QtWidgets.QFileDialog.getExistingDirectory()
@@ -212,22 +302,21 @@ class DCKit(QtWidgets.QMainWindow):
         if pout:
             pout = pathlib.Path(pout)
             for row in range(self.tableWidget.rowCount()):
-                path_index = int(self.tableWidget.item(row, 0).text())
-                path = self.pathlist[path_index]
-                newname = self.tableWidget.item(row, 2).text()
+                path = self.get_path(row)
+                metadata = self.get_metadata(row)
+                name = metadata["experiment"]["sample"]
                 prtdc = pout / get_rtdc_output_name(origin_path=path,
-                                                    sample_name=newname)
+                                                    sample_name=name)
                 invalid = []
                 if path.suffix == ".rtdc":
                     task_dict = {
                         "name": "compress HDF5 data",
                     }
                     dclab.cli.compress(path_in=path, path_out=prtdc)
-                    # update sample name
-                    with h5py.File(prtdc, "a") as h5:
-                        h5.attrs["experiment:sample"] = numpy.string_(
-                            newname.encode("utf-8"))
                     append_execution_log(prtdc, task_dict)
+                    task_dict_meta = self.write_metadata(prtdc, metadata)
+                    if task_dict_meta:
+                        append_execution_log(prtdc, task_dict_meta)
                     # write any warnings to separate log files
                     extract_warning_logs(prtdc)
                     # update list for UI
@@ -235,11 +324,13 @@ class DCKit(QtWidgets.QMainWindow):
                 else:
                     # do not do anything with .rtdc files
                     invalid.append(path)
+        else:
+            return
         if invalid:
             # Show an error dialog for the tdms files
             msg = QtWidgets.QMessageBox()
             msg.setIcon(QtWidgets.QMessageBox.Critical)
-            msg.setText("Only .tdms files supported as input!")
+            msg.setText("No .tdms files supported as input!")
             msg.setWindowTitle("Unsupported action")
             msg.setDetailedText("Affected files are:\n"
                                 + "\n\n".join([str(p) for p in invalid]))
@@ -249,7 +340,7 @@ class DCKit(QtWidgets.QMainWindow):
         msg = QtWidgets.QMessageBox()
         if len(details):
             msg.setIcon(QtWidgets.QMessageBox.Information)
-            msg.setText("Successfully converted .tdms to .rtdc!")
+            msg.setText("Successfully compressed .rtdc files!")
             msg.setWindowTitle("Success")
             msg.setDetailedText("\n\n".join(details))
         else:
@@ -258,44 +349,44 @@ class DCKit(QtWidgets.QMainWindow):
             msg.setWindowTitle("Warning")
         msg.exec_()
 
-    def on_change_sample_names(self):
-        """Update the sample names of the datasets"""
+    def on_task_integrity_all(self):
+        QtWidgets.QApplication.setOverrideCursor(
+            QtGui.QCursor(QtCore.Qt.WaitCursor))
+
+        for did in self.integrity_buttons:
+            btn = self.integrity_buttons[did]
+            self.on_integrity_check(button=btn)
+
+        QtWidgets.QApplication.restoreOverrideCursor()
+
+    def on_task_metadata(self):
+        """Update the metadata including the sample names of the datasets"""
         invalid = []
         details = []
         for row in range(self.tableWidget.rowCount()):
-            path_index = int(self.tableWidget.item(row, 0).text())
-            path = self.pathlist[path_index]
-            newname = self.tableWidget.item(row, 2).text()
-            oldname = meta_tool.get_sample_name(path)
-            if isinstance(oldname, bytes):
-                oldname = oldname.decode('utf_8')
-            # compare sample names bytes-insensitive
-            if newname != oldname:
-                if path.suffix == ".tdms":
-                    # not supported for tdms files
-                    invalid.append(path)
-                else:
-                    # change sample name
-                    with h5py.File(path, "a") as h5:
-                        h5.attrs["experiment:sample"] = numpy.string_(
-                            newname.encode("utf-8"))
-                    # add entry to the log
-                    task_dict = {
-                        "name": "update attributes",
-                        "old": {"experiment:sample": oldname},
-                        "new": {"experiment:sample": newname},
-                    }
-                    append_execution_log(path, task_dict)
+            path = self.get_path(row)
+            # check whether we are allowed to do this
+            if path.suffix == ".tdms":
+                # not supported for tdms files
+                invalid.append(path)
+            else:
+                metadata = self.get_metadata(row)
+                task_dict_meta = self.write_metadata(path, metadata)
+                if task_dict_meta:
+                    append_execution_log(path, task_dict_meta)
                     # update list for UI
-                    details.append("- {}: {} -> {}".format(path, oldname,
-                                                           newname))
+                    details.append("{}: update metadata".format(path))
+                    # remove item from check cache
+                    if path in dlg_icheck.IntegrityCheckDialog.user_metadata:
+                        dlg_icheck.IntegrityCheckDialog.user_metadata.pop(path)
+                dlg_icheck.check_dataset.cache_clear()
         if invalid:
             # Show an error dialog for the tdms files
             msg = QtWidgets.QMessageBox()
             msg.setIcon(QtWidgets.QMessageBox.Critical)
-            msg.setText("Renaming .tdms sample names not supported!")
+            msg.setText("Updating .tdms metadata not supported!")
             msg.setInformativeText(
-                "Changing the sample name for .tdms files is "
+                "Changing the metadata for .tdms files is "
                 + "not supported! Please convert the files to "
                 + "the .rtdc file format.")
             msg.setWindowTitle("Unsupported action")
@@ -307,7 +398,7 @@ class DCKit(QtWidgets.QMainWindow):
         msg = QtWidgets.QMessageBox()
         if len(details):
             msg.setIcon(QtWidgets.QMessageBox.Information)
-            msg.setText("Successfully renamed sample names!")
+            msg.setText("Successfully updated metadata!")
             msg.setWindowTitle("Success")
             msg.setDetailedText("\n\n".join(details))
         else:
@@ -316,26 +407,7 @@ class DCKit(QtWidgets.QMainWindow):
             msg.setWindowTitle("Warning")
         msg.exec_()
 
-    def on_clear_measurements(self):
-        """Clear the table"""
-        for _ in range(len(self.pathlist)):
-            self.tableWidget.removeRow(0)
-        self.pathlist = []
-
-    def on_join(self):
-        """Join multiple RT-DC measurements"""
-        pass
-
-    def on_table_text_changed(self):
-        """Reset sample name if set to empty string"""
-        curit = self.tableWidget.currentItem()
-        if curit is not None and curit.text() == "":
-            row = self.tableWidget.currentRow()
-            path_index = int(self.tableWidget.item(row, 0).text())
-            sample = meta_tool.get_sample_name(self.pathlist[path_index])
-            self.tableWidget.item(row, 2).setText(sample)
-
-    def on_tdms2rtdc(self):
+    def on_task_tdms2rtdc(self):
         """Convert .tdms files to .rtdc files"""
         # Open the target directory
         pout = QtWidgets.QFileDialog.getExistingDirectory()
@@ -345,11 +417,11 @@ class DCKit(QtWidgets.QMainWindow):
         if pout:
             pout = pathlib.Path(pout)
             for row in range(self.tableWidget.rowCount()):
-                path_index = int(self.tableWidget.item(row, 0).text())
-                path = self.pathlist[path_index]
-                newname = self.tableWidget.item(row, 2).text()
+                path = self.get_path(row)
+                metadata = self.get_metadata(row)
+                name = metadata["experiment"]["sample"]
                 prtdc = pout / get_rtdc_output_name(origin_path=path,
-                                                    sample_name=newname)
+                                                    sample_name=name)
                 if path.suffix == ".tdms":
                     task_dict = {
                         "name": "convert .tdms to .rtdc",
@@ -365,11 +437,10 @@ class DCKit(QtWidgets.QMainWindow):
                         if prtdc.exists():
                             prtdc.unlink()
                     else:
-                        # update sample name
-                        with h5py.File(prtdc, "a") as h5:
-                            h5.attrs["experiment:sample"] = numpy.string_(
-                                newname.encode("utf-8"))
                         append_execution_log(prtdc, task_dict)
+                        task_dict_meta = self.write_metadata(prtdc, metadata)
+                        if task_dict_meta:
+                            append_execution_log(prtdc, task_dict_meta)
                         # write any warnings to separate log files
                         extract_warning_logs(prtdc)
                         # update list for UI
@@ -411,6 +482,41 @@ class DCKit(QtWidgets.QMainWindow):
             msg.setWindowTitle("Warning")
         msg.exec_()
 
+    def write_metadata(self, path, metadata):
+        """Write metadata to an HDF5 file
+
+        Returns
+        -------
+        `task_dict` if anything changed or None
+        """
+        # entry for the log
+        task_dict = {
+            "name": "update metadata",
+            "old": {},
+            "new": {},
+        }
+        # update in-place
+        with h5py.File(path, "a") as h5:
+            for sec in metadata:
+                for key in metadata[sec]:
+                    h5key = "{}:{}".format(sec, key)
+                    value = metadata[sec][key]
+                    value_old = h5.attrs.get(h5key, None)
+                    if isinstance(value_old, bytes):
+                        value_old = value_old.decode("utf-8")
+                    if isinstance(value, bytes):
+                        value = value.decode("utf-8")
+                    if value != value_old:
+                        task_dict["new"][h5key] = value
+                        task_dict["old"][h5key] = value_old
+                        if isinstance(value, str):  # (after task_dict)
+                            value = numpy.string_(value.encode("utf-8"))
+                        h5.attrs[h5key] = value
+        if task_dict["new"]:
+            return task_dict
+        else:
+            return None
+
 
 def append_execution_log(path, task_dict):
     info = get_job_info()
@@ -431,7 +537,7 @@ def excepthook(etype, value, trace):
         prints the standard Python header: ``Traceback (most recent
         call last)``.
     """
-    vinfo = "Unhandled exception in Shape-Out version {}:\n".format(
+    vinfo = "Unhandled exception in DCKit version {}:\n".format(
         __version__)
     tmp = traceback.format_exception(etype, value, trace)
     exception = "".join([vinfo]+tmp)

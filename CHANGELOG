@@ -1,3 +1,8 @@
+0.5.0
+ - feat: implement an integrity checker and an interface to update
+   wrong or missing metadata
+ - fix: always write metadata changes in dckit-history
+ - fix: messages in compression tool were referring to tdms2rtdc
 0.4.3
  - fix: explicitly set file mode with h5py
  - build: experimental macOS build + PyPI deploy
