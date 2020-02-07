@@ -92,6 +92,9 @@
       <layout class="QVBoxLayout" name="verticalLayout">
        <item>
         <widget class="QPushButton" name="pushButton_integrity">
+         <property name="toolTip">
+          <string>checks all datasets for integrity</string>
+         </property>
          <property name="text">
           <string>Run integrity checks</string>
          </property>
@@ -107,7 +110,7 @@
        <item>
         <widget class="QPushButton" name="pushButton_metadata">
          <property name="toolTip">
-          <string>update the sample name of individual .rtdc files in-place</string>
+          <string>update metadata of individual .rtdc files in-place</string>
          </property>
          <property name="text">
           <string>Update metadata</string>
@@ -120,7 +123,7 @@
           <bool>true</bool>
          </property>
          <property name="toolTip">
-          <string>convert .tdms measurements to the .rtdc file format (includes update of sample names and lossless compression)</string>
+          <string>convert .tdms measurements to the .rtdc file format (includes update of metadata and lossless compression)</string>
          </property>
          <property name="text">
           <string>Convert .tdms to .rtdc</string>
@@ -130,7 +133,7 @@
        <item>
         <widget class="QPushButton" name="pushButton_compress">
          <property name="toolTip">
-          <string>compress .rtdc files lossless to save disk space (includes update of sample names)</string>
+          <string>compress .rtdc files lossless to save disk space (includes update of metadata)</string>
          </property>
          <property name="text">
           <string>Compress .rtdc</string>
