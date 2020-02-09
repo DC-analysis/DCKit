@@ -3,6 +3,7 @@
    wrong or missing metadata (#1)
  - fix: always write metadata changes in dckit-history
  - fix: messages in compression tool were referring to tdms2rtdc
+ - setup: bump dclab from 0.20.3 to 0.20.6 (be trustful with contours)
 0.4.3
  - fix: explicitly set file mode with h5py
  - build: experimental macOS build + PyPI deploy
