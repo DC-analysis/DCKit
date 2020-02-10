@@ -36,7 +36,7 @@ class DCKit(QtWidgets.QMainWindow):
         self.pushButton_compress.clicked.connect(self.on_task_compress)
         self.pushButton_metadata.clicked.connect(self.on_task_metadata)
         self.pushButton_tdms2rtdc.clicked.connect(self.on_task_tdms2rtdc)
-        self.pushButton_join.clicked.connect(self.on_join)
+        self.pushButton_join.clicked.connect(self.on_task_join)
         self.tableWidget.itemChanged.connect(self.on_table_text_changed)
         # File menu
         self.action_add.triggered.connect(self.on_add_measurements)
@@ -281,10 +281,6 @@ class DCKit(QtWidgets.QMainWindow):
                   "passed": "#007A04"}
         button.setStyleSheet("color: {}".format(colors[dlg.state]))
 
-    def on_join(self):
-        """Join multiple RT-DC measurements"""
-        pass
-
     def on_table_text_changed(self):
         """Reset sample name if set to empty string"""
         curit = self.tableWidget.currentItem()
@@ -358,6 +354,24 @@ class DCKit(QtWidgets.QMainWindow):
             self.on_integrity_check(button=btn)
 
         QtWidgets.QApplication.restoreOverrideCursor()
+
+    def on_task_join(self):
+        """Join multiple RT-DC measurements"""
+        # show a dialog with sample name
+        dlg = QtWidgets.QDialog()
+        path_ui = pkg_resources.resource_filename("dckit", "dlg_join.ui")
+        uic.loadUi(path_ui, dlg)
+        dlg.lineEdit.setText(self.get_metadata(0)["experiment"]["sample"])
+        dlg.exec_()
+        sample = dlg.lineEdit.text()
+        metadata = {"experiment": {"run index": 1,
+                                   "sample": sample}}
+        po, _ = QtWidgets.QFileDialog.getSaveFileName(self, 'Output path', '',
+                                                      'RT-DC files (*.rtdc)')
+        pi = []
+        for row in range(self.tableWidget.rowCount()):
+            pi.append(self.get_path(row))
+        dclab.cli.join(path_out=po, paths_in=pi, metadata=metadata)
 
     def on_task_metadata(self):
         """Update the metadata including the sample names of the datasets"""

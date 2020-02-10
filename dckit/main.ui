@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1112</width>
-    <height>632</height>
+    <height>640</height>
    </rect>
   </property>
   <property name="acceptDrops">
@@ -143,7 +143,7 @@
        <item>
         <widget class="QPushButton" name="pushButton_join">
          <property name="enabled">
-          <bool>false</bool>
+          <bool>true</bool>
          </property>
          <property name="toolTip">
           <string>join multiple measurements into a single .rtdc file ( (includes lossless compression)</string>
