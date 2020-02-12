@@ -1,3 +1,8 @@
+0.7.0
+ - feat: implement log viewer (accessible via integrity check)
+ - setup: bump dclab from 0.20.7 to 0.20.8 (fix regression when
+   opening tdms files without "area_msd" feature)
+ - build: DCKit 0.6.0 falsely required dclab 0.20.6
 0.6.0
  - feat: implement joining of datasets (#4)
  - setup: bump dclab from 0.20.6 to 0.20.7

@@ -110,6 +110,15 @@ class IntegrityCheckDialog(QtWidgets.QDialog):
                                                             cue.msg)
         self.textEdit.setText(text)
 
+        # Logs
+        with dclab.new_dataset(self.path) as ds:
+            if ds.logs:
+                for log in ds.logs:
+                    self.comboBox_logs.addItem(log, log)
+            else:
+                self.widget_logs.hide()
+            self.comboBox_logs.currentIndexChanged.connect(self.on_logs)
+
     def check(self, use_metadata=True, expand_section=True):
         if use_metadata:
             metadata_dump = json.dumps(self.metadata, sort_keys=True)
@@ -140,6 +149,20 @@ class IntegrityCheckDialog(QtWidgets.QDialog):
             if key in self.metadata[section]:
                 value = self.metadata[section][key]
         return value
+
+    def on_logs(self):
+        log = self.comboBox_logs.currentData()
+        if log is None:
+            return
+        dlg = QtWidgets.QDialog()
+        dlg.setWindowTitle("{}: {}".format(self.path.name, log))
+        path_ui = pkg_resources.resource_filename("dckit", "dlg_log.ui")
+        uic.loadUi(path_ui, dlg)
+        dlg.label.setText(log)
+        with dclab.new_dataset(self.path) as ds:
+            text = "\n".join(ds.logs[log])
+            dlg.plainTextEdit.setPlainText(text)
+        dlg.exec_()
 
     def save_current_metadata(self):
         for sec in self.user_widgets:
