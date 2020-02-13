@@ -93,6 +93,7 @@ def test_task_tdms2rtdc(qtbot, monkeypatch):
     mw = DCKit(check_update=False)
     qtbot.addWidget(mw)
     mw.append_paths([path])
+    assert mw.tableWidget.rowCount() == 1
     paths_converted, invalid, errors = mw.on_task_tdms2rtdc()
     assert len(errors) == 0
     assert len(invalid) == 0
