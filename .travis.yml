@@ -27,7 +27,7 @@ install:
 - travis_retry pip install dclab[all]
 - travis_retry pip install -e .
 # download ffmpeg
-- travis_retry imageio_download_bin ffmpeg
+- travis_retry imageio_download_bin --package-dir ffmpeg
 # for tests:
 - travis_retry pip install codecov coverage flake8
 - pip freeze
