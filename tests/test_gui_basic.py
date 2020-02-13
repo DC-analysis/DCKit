@@ -80,16 +80,18 @@ def test_task_metadata_sample(qtbot, monkeypatch):
     cleanup()
 
 
-def disabled_test_task_tdms2rtdc(qtbot, monkeypatch):
-    # Monkeypatch message box to always return OK
-    monkeypatch.setattr(QMessageBox, "exec_", lambda *args: QMessageBox.Ok)
-    mw = DCKit(check_update=False)
-    qtbot.addWidget(mw)
+def test_task_tdms2rtdc(qtbot, monkeypatch):
     path = retrieve_data("rtdc_data_traces_video.zip")
-    mw.append_paths([path])
     path_out = path.with_name("converted")
     path_out.mkdir()
-    pouts = mw.on_task_tdms2rtdc(path_out=path_out)
+    # Monkeypatch message box to always return OK
+    monkeypatch.setattr(QMessageBox, "exec_", lambda *args: QMessageBox.Ok)
+    monkeypatch.setattr(QFileDialog, "getExistingDirectory",
+                        lambda *args: str(path_out))
+    mw = DCKit(check_update=False)
+    qtbot.addWidget(mw)
+    mw.append_paths([path])
+    pouts = mw.on_task_tdms2rtdc()
     with dclab.new_dataset(pouts[0]) as ds:
         assert ds.config["setup"]["module composition"] == "Cell_Flow_2, Fluor"
     cleanup()

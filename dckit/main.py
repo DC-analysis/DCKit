@@ -451,13 +451,9 @@ class DCKit(QtWidgets.QMainWindow):
             msg.setWindowTitle("Warning")
         msg.exec_()
 
-    def on_task_tdms2rtdc(self, path_out=None):
+    def on_task_tdms2rtdc(self):
         """Convert .tdms files to .rtdc files"""
-        if path_out is None:
-            # Open the target directory
-            pout = QtWidgets.QFileDialog.getExistingDirectory()
-        else:
-            pout = path_out
+        pout = QtWidgets.QFileDialog.getExistingDirectory()
         details = []
         errors = []
         invalid = []
