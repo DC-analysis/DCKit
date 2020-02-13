@@ -21,7 +21,7 @@ from ._version import version as __version__
 
 
 class DCKit(QtWidgets.QMainWindow):
-    def __init__(self):
+    def __init__(self, check_update=True):
         QtWidgets.QMainWindow.__init__(self)
         path_ui = pkg_resources.resource_filename("dckit", "main.ui")
         uic.loadUi(path_ui, self)
@@ -50,8 +50,9 @@ class DCKit(QtWidgets.QMainWindow):
         self.pathlist = []
         # contains all integrity buttons (keys are DCKit-ids)
         self.integrity_buttons = {}
-        # Update Check
-        self.on_action_check_update(True)
+        if check_update:
+            # Update Check
+            self.on_action_check_update(True)
 
     def append_paths(self, pathlist):
         """Append selected paths to table"""
@@ -312,6 +313,7 @@ class DCKit(QtWidgets.QMainWindow):
         # Open the target directory
         pout = QtWidgets.QFileDialog.getExistingDirectory()
         details = []
+        paths_compressed = []
         if pout:
             pout = pathlib.Path(pout)
             for row in range(self.tableWidget.rowCount()):
@@ -334,6 +336,7 @@ class DCKit(QtWidgets.QMainWindow):
                     extract_warning_logs(prtdc)
                     # update list for UI
                     details.append("{} -> {}".format(path, prtdc))
+                    paths_compressed.append(prtdc)
                     # repack if checked
                     # (we still did the compression in case dclab needed
                     # to fix things)
@@ -365,6 +368,7 @@ class DCKit(QtWidgets.QMainWindow):
             msg.setText("Nothing to do!")
             msg.setWindowTitle("Warning")
         msg.exec_()
+        return paths_compressed
 
     def on_task_integrity_all(self):
         QtWidgets.QApplication.setOverrideCursor(
@@ -447,13 +451,17 @@ class DCKit(QtWidgets.QMainWindow):
             msg.setWindowTitle("Warning")
         msg.exec_()
 
-    def on_task_tdms2rtdc(self):
+    def on_task_tdms2rtdc(self, path_out=None):
         """Convert .tdms files to .rtdc files"""
-        # Open the target directory
-        pout = QtWidgets.QFileDialog.getExistingDirectory()
+        if path_out is None:
+            # Open the target directory
+            pout = QtWidgets.QFileDialog.getExistingDirectory()
+        else:
+            pout = path_out
         details = []
         errors = []
         invalid = []
+        paths_converted = []
         if pout:
             pout = pathlib.Path(pout)
             for row in range(self.tableWidget.rowCount()):
@@ -485,6 +493,7 @@ class DCKit(QtWidgets.QMainWindow):
                         extract_warning_logs(prtdc)
                         # update list for UI
                         details.append("{} -> {}".format(path, prtdc))
+                        paths_converted.append(prtdc)
                         # repack if checked
                         self.repack(prtdc)
                 else:
@@ -523,6 +532,7 @@ class DCKit(QtWidgets.QMainWindow):
             msg.setText("Nothing to do!")
             msg.setWindowTitle("Warning")
         msg.exec_()
+        return paths_converted
 
     def repack(self, path):
         """repack and strip logs if the checkbox is checked"""

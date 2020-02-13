@@ -31,7 +31,7 @@ setup(
                       "pyqt5",
                       ],
     setup_requires=["pytest-runner"],
-    tests_require=["pytest", "urllib3"],
+    tests_require=["pytest", "pytest-qt"],
     python_requires='>=3.6, <4',
     entry_points={"gui_scripts" : ['dckit = dckit.__main__:main']},
     keywords=["RT-DC", "deformability", "cytometry", "zellmechanik"],
