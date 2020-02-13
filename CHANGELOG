@@ -1,6 +1,6 @@
 0.8.0
  - feat: allow to strip logs and repack the output .rtdc file (#5)
- - setup: bump dclab from 0.20.8 to 0.21.1 (repacking)
+ - setup: bump dclab from 0.20.8 to 0.21.2 (repacking)
 0.7.0
  - feat: implement log viewer (accessible via integrity check)
  - setup: bump dclab from 0.20.7 to 0.20.8 (fix regression when
