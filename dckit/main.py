@@ -4,6 +4,7 @@ import pkg_resources
 import signal
 import sys
 import traceback
+import warnings
 
 import dclab
 from dclab.cli import get_job_info, repack
@@ -70,6 +71,9 @@ class DCKit(QtWidgets.QMainWindow):
                         "flow rate": (6, meta_tool.get_flow_rate(path)),
                         }
             except BaseException:
+                warnings.warn("Could not append dataset {} ".format(path)
+                              + "(traceback follows)!\n"
+                              + "{}".format(traceback.format_exc()))
                 # stop doing anything
                 continue
             self.pathlist.append(pathlib.Path(path))
