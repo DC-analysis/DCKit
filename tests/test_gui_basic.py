@@ -80,7 +80,7 @@ def test_task_metadata_sample(qtbot, monkeypatch):
     cleanup()
 
 
-def test_task_tdms2rtdc(qtbot, monkeypatch):
+def disabled_test_task_tdms2rtdc(qtbot, monkeypatch):
     path = retrieve_data("rtdc_data_traces_video.zip")
     path_out = path.with_name("converted")
     path_out.mkdir()
