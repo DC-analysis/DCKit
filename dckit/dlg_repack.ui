@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Dialog</class>
+ <widget class="QDialog" name="Dialog">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>423</width>
+    <height>421</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Dialog</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <widget class="QLabel" name="label">
+     <property name="text">
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Repack and strip logs&lt;/span&gt;&lt;br/&gt;&lt;br/&gt;Log data contain a lot of useful information: Shape-In&lt;br/&gt;data acquisition messages, logs for metadata updates&lt;br/&gt;by dclab or DCKit, or (if applicable) the ancillary files of&lt;br/&gt;the original .tdms dataset (para.ini, etc.).&lt;/p&gt;&lt;p&gt;Repacking means that the .rtdc file is generated from&lt;br/&gt;scratch. This gets rid of old metadata that is still stored&lt;br/&gt;(but not accessible by standard methods) in the&lt;br/&gt;underlying HDF5 file.&lt;br/&gt;&lt;br/&gt;Should you choose this option, please be aware that&lt;br/&gt;there is no way of retrieving the original metadata&lt;br/&gt;or logs from the .rtdc file generated. Thus, it really only&lt;br/&gt;makes sense to use this option for publication purposes&lt;br/&gt;(to avoid clutter data) and if you are certain that there&lt;br/&gt;is no valuable information stored in the logs and if you&lt;br/&gt;have checked that all matadata are correct.&lt;br/&gt;&lt;br/&gt;Proceed?&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <spacer name="verticalSpacer">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>40</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item>
+    <widget class="QDialogButtonBox" name="buttonBox">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="standardButtons">
+      <set>QDialogButtonBox::Abort|QDialogButtonBox::Yes</set>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>accepted()</signal>
+   <receiver>Dialog</receiver>
+   <slot>accept()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>248</x>
+     <y>254</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>157</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>rejected()</signal>
+   <receiver>Dialog</receiver>
+   <slot>reject()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>316</x>
+     <y>260</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>286</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>

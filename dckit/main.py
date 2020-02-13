@@ -6,7 +6,7 @@ import sys
 import traceback
 
 import dclab
-from dclab.cli import get_job_info
+from dclab.cli import get_job_info, repack
 import hashlib
 import h5py
 import numpy
@@ -38,6 +38,7 @@ class DCKit(QtWidgets.QMainWindow):
         self.pushButton_tdms2rtdc.clicked.connect(self.on_task_tdms2rtdc)
         self.pushButton_join.clicked.connect(self.on_task_join)
         self.tableWidget.itemChanged.connect(self.on_table_text_changed)
+        self.checkBox_repack.clicked.connect(self.on_repack)
         # File menu
         self.action_add.triggered.connect(self.on_add_measurements)
         self.action_add_folder.triggered.connect(self.on_add_folder)
@@ -256,6 +257,22 @@ class DCKit(QtWidgets.QMainWindow):
         self.pathlist.clear()
         self.integrity_buttons.clear()
 
+    def on_repack(self):
+        """The checkbox is clicked (no repacking is performed)"""
+        if self.checkBox_repack.isChecked():
+            # ask the user whether he knows what he is doing
+            dlg = QtWidgets.QDialog()
+            path_ui = pkg_resources.resource_filename("dckit", "dlg_repack.ui")
+            uic.loadUi(path_ui, dlg)
+            ret = dlg.exec_()
+            if ret == QtWidgets.QDialog.Rejected:
+                self.checkBox_repack.setChecked(False)
+                self.pushButton_metadata.setEnabled(True)
+            else:
+                self.pushButton_metadata.setEnabled(False)
+        else:
+            self.pushButton_metadata.setEnabled(True)
+
     def on_integrity_check(self, b=False, button=None):
         if button is None:
             button = self.sender()
@@ -317,6 +334,10 @@ class DCKit(QtWidgets.QMainWindow):
                     extract_warning_logs(prtdc)
                     # update list for UI
                     details.append("{} -> {}".format(path, prtdc))
+                    # repack if checked
+                    # (we still did the compression in case dclab needed
+                    # to fix things)
+                    self.repack(prtdc)
                 else:
                     # do not do anything with .rtdc files
                     invalid.append(path)
@@ -368,10 +389,15 @@ class DCKit(QtWidgets.QMainWindow):
                                    "sample": sample}}
         po, _ = QtWidgets.QFileDialog.getSaveFileName(self, 'Output path', '',
                                                       'RT-DC files (*.rtdc)')
+        po = pathlib.Path(po)
+        if not po.suffix == ".rtdc":
+            po = po.parent / (po.name + ".rtdc")
         pi = []
         for row in range(self.tableWidget.rowCount()):
             pi.append(self.get_path(row))
         dclab.cli.join(path_out=po, paths_in=pi, metadata=metadata)
+        # repack if checked
+        self.repack(po)
 
     def on_task_metadata(self):
         """Update the metadata including the sample names of the datasets"""
@@ -459,6 +485,8 @@ class DCKit(QtWidgets.QMainWindow):
                         extract_warning_logs(prtdc)
                         # update list for UI
                         details.append("{} -> {}".format(path, prtdc))
+                        # repack if checked
+                        self.repack(prtdc)
                 else:
                     # do not do anything with .rtdc files
                     invalid.append(path)
@@ -495,6 +523,23 @@ class DCKit(QtWidgets.QMainWindow):
             msg.setText("Nothing to do!")
             msg.setWindowTitle("Warning")
         msg.exec_()
+
+    def repack(self, path):
+        """repack and strip logs if the checkbox is checked"""
+        if not self.checkBox_repack.isChecked():
+            return
+
+        path = pathlib.Path(path)
+        path_temp = path.with_name("." + path.name + "_repack.temp")
+        try:
+            repack(path, path_temp, strip_logs=True)
+        except BaseException:
+            if path_temp.exists():
+                path_temp.unlink()
+            raise
+        else:
+            path.unlink()
+            path_temp.rename(path)
 
     def write_metadata(self, path, metadata):
         """Write metadata to an HDF5 file
@@ -535,6 +580,7 @@ class DCKit(QtWidgets.QMainWindow):
 def append_execution_log(path, task_dict):
     info = get_job_info()
     info["libraries"]["shapeout"] = shapeout.__version__
+    info["libraries"]["dckit"] = __version__
     info["task"] = task_dict
     history.append_history(path, info)
 
