@@ -313,6 +313,7 @@ class DCKit(QtWidgets.QMainWindow):
         # Open the target directory
         pout = QtWidgets.QFileDialog.getExistingDirectory()
         details = []
+        invalid = []
         paths_compressed = []
         if pout:
             pout = pathlib.Path(pout)
@@ -322,7 +323,6 @@ class DCKit(QtWidgets.QMainWindow):
                 name = metadata["experiment"]["sample"]
                 prtdc = pout / get_rtdc_output_name(origin_path=path,
                                                     sample_name=name)
-                invalid = []
                 if path.suffix == ".rtdc":
                     task_dict = {
                         "name": "compress HDF5 data",
@@ -368,7 +368,7 @@ class DCKit(QtWidgets.QMainWindow):
             msg.setText("Nothing to do!")
             msg.setWindowTitle("Warning")
         msg.exec_()
-        return paths_compressed
+        return paths_compressed, invalid
 
     def on_task_integrity_all(self):
         QtWidgets.QApplication.setOverrideCursor(
@@ -528,7 +528,7 @@ class DCKit(QtWidgets.QMainWindow):
             msg.setText("Nothing to do!")
             msg.setWindowTitle("Warning")
         msg.exec_()
-        return paths_converted
+        return paths_converted, invalid, errors
 
     def repack(self, path):
         """repack and strip logs if the checkbox is checked"""

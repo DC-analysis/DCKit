@@ -37,7 +37,9 @@ def test_task_compress(qtbot, monkeypatch):
     mw = DCKit(check_update=False)
     qtbot.addWidget(mw)
     mw.append_paths([path])
-    pouts = mw.on_task_compress()
+    pouts, invalid = mw.on_task_compress()
+    assert len(pouts) == 1
+    assert len(invalid) == 0
     with dclab.new_dataset(pouts[0]) as ds, dclab.new_dataset(path) as ds0:
         assert len(ds) == len(ds0)
         for feat in dclab.dfn.scalar_feature_names:
@@ -80,7 +82,7 @@ def test_task_metadata_sample(qtbot, monkeypatch):
     cleanup()
 
 
-def disabled_test_task_tdms2rtdc(qtbot, monkeypatch):
+def test_task_tdms2rtdc(qtbot, monkeypatch):
     path = retrieve_data("rtdc_data_traces_video.zip")
     path_out = path.with_name("converted")
     path_out.mkdir()
@@ -91,7 +93,10 @@ def disabled_test_task_tdms2rtdc(qtbot, monkeypatch):
     mw = DCKit(check_update=False)
     qtbot.addWidget(mw)
     mw.append_paths([path])
-    pouts = mw.on_task_tdms2rtdc()
-    with dclab.new_dataset(pouts[0]) as ds:
+    paths_converted, invalid, errors = mw.on_task_tdms2rtdc()
+    assert len(errors) == 0
+    assert len(invalid) == 0
+    assert len(paths_converted) == 1
+    with dclab.new_dataset(paths_converted[0]) as ds:
         assert ds.config["setup"]["module composition"] == "Cell_Flow_2, Fluor"
     cleanup()
