@@ -80,7 +80,7 @@ def test_task_metadata_sample(qtbot, monkeypatch):
     cleanup()
 
 
-def test_task_tdms2rtdc(qtbot, monkeypatch):
+def disabled_test_task_tdms2rtdc(qtbot, monkeypatch):
     # Monkeypatch message box to always return OK
     monkeypatch.setattr(QMessageBox, "exec_", lambda *args: QMessageBox.Ok)
     mw = DCKit(check_update=False)
