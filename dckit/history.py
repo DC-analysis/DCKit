@@ -79,9 +79,10 @@ def write_history(path, hlist):
                       indent=2,
                       default=default_json_converter,
                       ).split("\n")
-    # write dump as log  (in "append" mode, the h5obj is always returned)
-    h5 = dclab.rtdc_dataset.write(path_or_h5file=path,
-                                  logs={"dckit-history": hlog},
-                                  mode="append",
-                                  compression="gzip")
-    h5.close()
+    # write dump as log
+    with dclab.rtdc_dataset.write(
+            path_or_h5file=path,
+            logs={"dckit-history": hlog},
+            mode="append",
+            compression="gzip"):
+        pass

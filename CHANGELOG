@@ -1,5 +1,8 @@
+0.8.2
+ - ref: revert "fix" from 0.8.1
 0.8.1
  - fix: HDF5 files were not always closed properly when writing logs
+   (reverted in 0.8.2, because essentially just refactoring)
 0.8.0
  - feat: allow to strip logs and repack the output .rtdc file (#5)
  - build: include ffmpeg binary
