@@ -13,7 +13,7 @@ or (for the .rtdc file format) via external tools such as
 
 Installation
 ------------
-A Windows installer is available from the
+A Windows installer and macOS packages are available from the
 `release page <https://github.com/ZELLMECHANIK-DRESDEN/DCKit/releases>`__.
 If you have Python 3 installed, you may also use pip to install DCKit:
 ::
