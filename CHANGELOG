@@ -1,4 +1,6 @@
 0.8.2
+ - docs: to avoid confusion, be more verbose when the user clicked
+   "Update metadata" and there is nothing to do (#7)
  - ref: revert "fix" from 0.8.1
 0.8.1
  - fix: HDF5 files were not always closed properly when writing logs

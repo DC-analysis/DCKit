@@ -451,7 +451,11 @@ class DCKit(QtWidgets.QMainWindow):
             msg.setDetailedText("\n\n".join(details))
         else:
             msg.setIcon(QtWidgets.QMessageBox.Warning)
-            msg.setText("Nothing to do!")
+            msg.setText("Nothing to update! You did not edit any metadata in "
+                        + "the 'Sample' column or via the integrity check or "
+                        + "you are attempting to update .tdms data (which "
+                        + "is not supported - use 'Convert .tdms to .rtdc' "
+                        + "instead).")
             msg.setWindowTitle("Warning")
         msg.exec_()
 
