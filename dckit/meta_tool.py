@@ -39,7 +39,7 @@ def get_flow_rate(path):
 def get_event_count(path):
     try:
         ec = meta_tool.get_event_count(path)
-    except BaseException:  # meta-tool Python2/3 issue
+    except BaseException:  # meta-tool Python2/3 issue or nptdms issue
         # get event count using dclab (slower)
         with dclab.new_dataset(path) as ds:
             ec = ds.config["experiment"]["event count"]

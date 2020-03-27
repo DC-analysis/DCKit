@@ -1,6 +1,7 @@
 import json
 import functools
 import pkg_resources
+import warnings
 
 import dclab
 from PyQt5 import uic, QtWidgets
@@ -143,11 +144,16 @@ class IntegrityCheckDialog(QtWidgets.QDialog):
 
         super(IntegrityCheckDialog, self).done(r)
 
-    def get_metadata_value(self, section, key):
+    def get_metadata_value(self, sec, key):
         value = None
-        if section in self.metadata:
-            if key in self.metadata[section]:
-                value = self.metadata[section][key]
+        # Try user-defined values
+        if sec in self.metadata and key in self.metadata[sec]:
+                value = self.metadata[sec][key]
+        # Try dataset
+        if value is None:
+            with dclab.new_dataset(self.path) as ds:
+                if sec in ds.config and key in ds.config[sec]:
+                    value = ds.config[sec][key]
         return value
 
     def on_logs(self):
@@ -185,8 +191,15 @@ class IntegrityCheckDialog(QtWidgets.QDialog):
 def check_dataset(path, metadata_dump, expand_section):
     """Caching wrapper for integrity checks"""
     metadata = json.loads(metadata_dump)
-    with dclab.new_dataset(path) as ds:
-        ds.config.update(metadata)
-        ic = dclab.rtdc_dataset.check.IntegrityChecker(ds)
-        cues = ic.check(expand_section=expand_section)
+    with warnings.catch_warnings(record=True) as ws:
+        warnings.simplefilter("always")
+        with dclab.new_dataset(path) as ds:
+            ds.config.update(metadata)
+            ic = dclab.rtdc_dataset.check.IntegrityChecker(ds)
+            cues = ic.check(expand_section=expand_section)
+        for ww in ws:
+            cues.append(dclab.rtdc_dataset.check.ICue(
+                msg="{}: {}".format(ww.category.__name__, ww.message),
+                level="alert",
+                category="warning"))
     return cues
