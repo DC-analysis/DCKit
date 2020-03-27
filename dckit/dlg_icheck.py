@@ -148,7 +148,7 @@ class IntegrityCheckDialog(QtWidgets.QDialog):
         value = None
         # Try user-defined values
         if sec in self.metadata and key in self.metadata[sec]:
-                value = self.metadata[sec][key]
+            value = self.metadata[sec][key]
         # Try dataset
         if value is None:
             with dclab.new_dataset(self.path) as ds:
