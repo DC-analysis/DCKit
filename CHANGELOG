@@ -1,7 +1,7 @@
 0.8.2
  - enh: show dataset values when metadata are wrong (dataset checker)
  - enh: improve layout spacing for dataset checker
- - setup: setup: bump dclab from 0.21.2 to 0.22.7 (compression info,
+ - setup: bump dclab from 0.21.2 to 0.22.7 (compression info,
    autocheck of metadata, flow rate check, export fix)
  - docs: to avoid confusion, be more verbose when the user clicked
    "Update metadata" and there is nothing to do (#7)
