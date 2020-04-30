@@ -403,9 +403,21 @@ class DCKit(QtWidgets.QMainWindow):
         pi = []
         for row in range(self.tableWidget.rowCount()):
             pi.append(self.get_path(row))
-        dclab.cli.join(path_out=po, paths_in=pi, metadata=metadata)
-        # repack if checked
-        self.repack(po)
+        if pi:
+            dclab.cli.join(path_out=po, paths_in=pi, metadata=metadata)
+            # repack if checked
+            self.repack(po)
+            # finally, show the feedback dialog
+            msg = QtWidgets.QMessageBox()
+            msg.setIcon(QtWidgets.QMessageBox.Information)
+            msg.setText("Successfully joined {} datasets!".format(len(pi)))
+            msg.setWindowTitle("Success")
+            msg.setDetailedText("\n".join([str(pp) for pp in pi]))
+        else:
+            msg.setIcon(QtWidgets.QMessageBox.Warning)
+            msg.setText("Nothing to do!")
+            msg.setWindowTitle("Warning")
+        msg.exec_()
 
     def on_task_metadata(self):
         """Update the metadata including the sample names of the datasets"""
