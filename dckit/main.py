@@ -655,10 +655,39 @@ def get_rtdc_output_name(origin_path, sample_name):
         meta_tool.get_date(origin_path),
         meta_tool.get_run_index(origin_path),
         # deal with unicode characters (replace with "?")
-        sample_name.replace(" ", "_").encode(
-            "utf-8").decode("ascii", errors="replace").replace("\ufffd", "?"),
+        sample_name,
         sha256(origin_path)[:8])
-    return name
+    return get_valid_filename(name)
+
+
+def get_valid_filename(value):
+    """
+    Return the given string converted to a string that can be used
+    for a clean filename.
+    """
+    ret = ""
+
+    valid = "abcdefghijklmnopqrstuvwxyz" \
+            + "ABCDEFGHIJKLMNOPQRSTUVWXYZ" \
+            + "0123456789" \
+            + "._-()"
+    replace = {
+        " ": "_",
+        "[": "(",
+        "]": ")",
+        "µ": "u",
+        }
+
+    for ch in value:
+        if ch in valid:
+            ret += ch
+        elif ch in replace:
+            ret += replace[ch]
+        else:
+            ret += "?"
+
+    ret = ret.strip(".")
+    return ret
 
 
 def sha256(path):
