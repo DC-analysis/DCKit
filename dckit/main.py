@@ -207,8 +207,7 @@ class DCKit(QtWidgets.QMainWindow):
             text += 'from a <a href="{}">direct download</a>. '.format(dlb)
         else:
             text += 'by running `pip install --upgrade dckit`. '
-        text += "Visit the ".format(ver) \
-            + '<a href="{}">official release page</a>!'.format(web)
+        text += 'Visit the <a href="{}">official release page</a>!'.format(web)
         msg.setText(text)
         msg.exec_()
 

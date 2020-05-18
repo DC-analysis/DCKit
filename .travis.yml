@@ -38,7 +38,6 @@ script:
 - coverage run --source=dckit setup.py test
 - coverage report -m
 - flake8 dckit
-- flake8 examples
 - flake8 tests
 after_success:
 - codecov
