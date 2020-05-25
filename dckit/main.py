@@ -1,4 +1,5 @@
 import copy
+import hashlib
 import pathlib
 import pkg_resources
 import signal
@@ -8,11 +9,12 @@ import warnings
 
 import dclab
 from dclab.cli import get_job_info, repack
-import hashlib
 import h5py
+import imageio
+import imageio_ffmpeg
+import nptdms
 import numpy
 from PyQt5 import uic, QtCore, QtGui, QtWidgets
-import shapeout
 
 from . import history
 from . import dlg_icheck
@@ -213,9 +215,11 @@ class DCKit(QtWidgets.QMainWindow):
 
     def on_action_software(self):
         libs = [dclab,
+                imageio,
+                imageio_ffmpeg,
                 h5py,
+                nptdms,
                 numpy,
-                shapeout,
                 ]
         sw_text = "DCKit {}\n\n".format(__version__)
         sw_text += "Python {}\n\n".format(sys.version)
@@ -235,7 +239,7 @@ class DCKit(QtWidgets.QMainWindow):
         path = QtWidgets.QFileDialog.getExistingDirectory()
         if not path:
             return
-        # find RT-DC data using shapeout
+        # find RT-DC data
         pathlist = meta_tool.find_data(path)
         if not pathlist:
             raise ValueError("No RT-DC data found in {}!".format(path))
@@ -604,7 +608,6 @@ class DCKit(QtWidgets.QMainWindow):
 
 def append_execution_log(path, task_dict):
     info = get_job_info()
-    info["libraries"]["shapeout"] = shapeout.__version__
     info["libraries"]["dckit"] = __version__
     info["task"] = task_dict
     history.append_history(path, info)

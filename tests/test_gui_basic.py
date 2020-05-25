@@ -42,11 +42,11 @@ def test_task_compress(qtbot, monkeypatch):
     assert len(invalid) == 0
     with dclab.new_dataset(pouts[0]) as ds, dclab.new_dataset(path) as ds0:
         assert len(ds) == len(ds0)
-        for feat in dclab.dfn.scalar_feature_names:
-            if feat in ds or feat in ds0:
-                assert feat in ds0
-                assert feat in ds
-                assert np.all(ds[feat] == ds0[feat])
+        scf = list(set(ds.features_scalar + ds0.features_scalar))
+        for feat in scf:
+            assert feat in ds0
+            assert feat in ds
+            assert np.all(ds[feat] == ds0[feat])
     cleanup()
 
 

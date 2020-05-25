@@ -25,12 +25,7 @@ install:
 # install binary packages
 - travis_retry pip install --upgrade pip
 - travis_retry pip install setuptools wheel
-# use dev-version of shapeout, b/c its release cycle is slower
-- travis_retry pip install --no-deps git+git://github.com/ZELLMECHANIK-DRESDEN/shapeout.git@develop
-- travis_retry pip install dclab[all]
 - travis_retry pip install -e .
-# download ffmpeg
-- travis_retry imageio_download_bin --package-dir ffmpeg
 # for tests:
 - travis_retry pip install codecov coverage flake8
 - pip freeze
