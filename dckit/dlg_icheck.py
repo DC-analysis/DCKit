@@ -193,6 +193,9 @@ def check_dataset(path, metadata_dump, expand_section):
     metadata = json.loads(metadata_dump)
     with warnings.catch_warnings(record=True) as ws:
         warnings.simplefilter("always")
+        # ignore "ResourceWarning: unclosed file <_io.BufferedReader name=29"
+        warnings.simplefilter("ignore", ResourceWarning)
+
         with dclab.new_dataset(path) as ds:
             ds.config.update(metadata)
             ic = dclab.rtdc_dataset.check.IntegrityChecker(ds)
