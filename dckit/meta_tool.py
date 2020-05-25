@@ -5,7 +5,6 @@ import dclab
 from dclab.rtdc_dataset import config as rt_config
 from dclab.rtdc_dataset import fmt_tdms
 import h5py
-import imageio
 import nptdms
 
 
@@ -83,8 +82,7 @@ def get_event_count_quick(fname):
     the number of events, which are used in the following order
     (according to which is faster):
     1. The MX_log.ini file "Events" tag
-    2. The number of frames in the avi file
-    3. The tdms file (very slow, because it loads the entire tdms file)
+    2. The tdms file (very slow, because it loads the entire tdms file)
        The values obtained with this method are cached on disk to
        speed up future calls with the same argument.
     """
@@ -99,7 +97,6 @@ def get_event_count_quick(fname):
         mid = fname.name.split("_")[0]
         # possible data sources
         logf = mdir / (mid + "_log.ini")
-        avif = mdir / (mid + "_imaq.avi")
         if logf.exists():
             # 1. The MX_log.ini file "Events" tag
             with logf.open(encoding='utf-8') as fd:
@@ -108,12 +105,8 @@ def get_event_count_quick(fname):
                 if ll.strip().startswith("Events:"):
                     event_count = int(ll.split(":")[1])
                     break
-        elif avif.exists():
-            # 2. The number of frames in the avi file
-            with imageio.get_reader(avif) as video:
-                event_count = len(video)
         else:
-            # 3. Open the tdms file
+            # 2. Open the tdms file
             with nptdms.TdmsFile.open(fname) as tdmsfd:
                 event_count = len(tdmsfd["Cell Track"]["time"])
     else:
