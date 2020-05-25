@@ -9,7 +9,6 @@ import imageio
 import nptdms
 
 
-
 def find_data(path):
     """Find tdms and rtdc data files in a directory"""
     path = pathlib.Path(path)
@@ -105,9 +104,9 @@ def get_event_count_quick(fname):
             # 1. The MX_log.ini file "Events" tag
             with logf.open(encoding='utf-8') as fd:
                 logd = fd.readlines()
-            for l in logd:
-                if l.strip().startswith("Events:"):
-                    event_count = int(l.split(":")[1])
+            for ll in logd:
+                if ll.strip().startswith("Events:"):
+                    event_count = int(ll.split(":")[1])
                     break
         elif avif.exists():
             # 2. The number of frames in the avi file
