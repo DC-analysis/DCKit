@@ -2,7 +2,7 @@
  - fix: export file names were allowed to have invalid characters
  - fix: ignore ResourceWarning
  - enh: improved preview speed for .tdms data
- - setup: bump dclab from 0.25.0 to 0.27.4 (support ML features)
+ - setup: bump dclab from 0.25.0 to 0.27.5 (support ML features)
  - setup: bump imageio to >=2.8.0
  - setup: bump nptdms to >=0.27.0
  - setup: drop shapeout dependency
