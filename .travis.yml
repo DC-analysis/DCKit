@@ -34,6 +34,7 @@ script:
 - coverage report -m
 - flake8 dckit
 - flake8 tests
+# build step
 - python setup.py sdist bdist_wheel
 # https://github.com/pyinstaller/pyinstaller/issues/4626
 - pip install pyinstaller==3.6
