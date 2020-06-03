@@ -34,12 +34,12 @@ script:
 - coverage report -m
 - flake8 dckit
 - flake8 tests
-after_success:
-- codecov
 - python setup.py sdist bdist_wheel
 # https://github.com/pyinstaller/pyinstaller/issues/4626
 - pip install pyinstaller==3.6
 - bash ./.travis/${TRAVIS_OS_NAME}_build_app.sh DCKitApp $TRAVIS_TAG
+after_success:
+- codecov
 deploy:
   - provider: pypi
     user: "ci_zmdd"
