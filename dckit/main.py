@@ -56,6 +56,11 @@ class DCKit(QtWidgets.QMainWindow):
         if check_update:
             # Update Check
             self.on_action_check_update(True)
+        # if "--version" was specified, print the version and exit
+        if "--version" in sys.argv:
+            print(__version__)
+            QtWidgets.QApplication.processEvents()
+            sys.exit(0)
 
     def append_paths(self, pathlist):
         """Append selected paths to table"""
