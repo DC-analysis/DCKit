@@ -12,7 +12,7 @@ matrix:
    language: generic
    env:
     # see https://www.python.org/downloads/mac-osx/ for valid versions
-    - MAC_PYTHON_VERSION=3.6.8
+    - MAC_PYTHON_VERSION=3.6.6
     - MAC_PYTHON_OSX_VERSION=10.6
    sudo: required
  - os: linux
