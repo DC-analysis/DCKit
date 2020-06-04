@@ -38,11 +38,11 @@ pip install pyinstaller
 
 # Work in a different directory (./dist_app instead of ./dist),
 # otherwise PyPI deployment on travis-CI tries to upload *.dmg files.
-pyinstaller -w -y --distpath="./dist_app" --exclude-module tkinter --additional-hooks-dir=".travis" --console $SCRIPT
+pyinstaller -w -y --distpath="./dist_app" --exclude-module tkinter --additional-hooks-dir=".travis" $SCRIPT
 
 # Test the binary by executing it with --version argument
 echo ""
-echo "...Testing the app (this should print the version). If it hangs, set 'console=True' in your .spec file!"
+echo "...Testing the app (this should print the version)."
 ./dist_app/${NAME}.app/Contents/MacOS/${NAME} --version
 
 # Create PKG (pkgbuild is for deployments in app stores)
