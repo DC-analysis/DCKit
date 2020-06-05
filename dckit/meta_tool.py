@@ -1,3 +1,4 @@
+import functools
 import pathlib
 import warnings
 
@@ -46,19 +47,37 @@ def find_data(path):
     return files
 
 
+def get_chip_region(path):
+    fname = pathlib.Path(path).resolve()
+    ext = fname.suffix
+    if ext == ".rtdc":
+        with h5py.File(fname, mode="r") as h5:
+            chip_region = h5.attrs["setup:chip region"]
+    elif ext == ".tdms":
+        name = fname.name
+        path = fname.parent
+        mx = name.split("_")[0]
+        para = path / (mx + "_para.ini")
+        if para.exists():
+            camcfg = rt_config.load_from_file(para)
+            chip_region = camcfg["general"]["region"].lower()
+        else:
+            config = get_rtdc_config(path)
+            chip_region = config["setup"]["chip region"]
+    return chip_region
+
+
 def get_date(path):
-    with dclab.new_dataset(path) as ds:
-        date = ds.config["experiment"]["date"]
-    return date
+    config = get_rtdc_config(path)
+    return config["experiment"]["date"]
 
 
 def get_event_count(path):
     try:
         ec = get_event_count_quick(path)
     except BaseException:
-        raise
-        with dclab.new_dataset(path) as ds:
-            ec = ds.config["experiment"]["event count"]
+        config = get_rtdc_config(path)
+        config["experiment"]["event count"]
     return ec
 
 
@@ -152,6 +171,13 @@ def get_flow_rate(fname):
         raise ValueError("`fname` must be an .rtdc or .tdms file!")
 
     return flow_rate
+
+
+@functools.lru_cache(maxsize=1000)
+def get_rtdc_config(path):
+    with dclab.new_dataset(path) as ds:
+        config = ds.config.copy()
+    return config
 
 
 def get_run_index(fname):

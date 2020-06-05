@@ -79,6 +79,7 @@ class DCKit(QtWidgets.QMainWindow):
                         "run index": (4, meta_tool.get_run_index(path)),
                         "event count": (5, meta_tool.get_event_count(path)),
                         "flow rate": (6, meta_tool.get_flow_rate(path)),
+                        "chip region": (None, meta_tool.get_chip_region(path)),
                         }
             except BaseException:
                 warnings.warn("Could not append dataset {} ".format(path)
@@ -94,6 +95,8 @@ class DCKit(QtWidgets.QMainWindow):
             self.tableWidget.insertRow(row)
             for key in info:
                 col, val = info[key]
+                if col is None:
+                    continue
                 if key == "integrity":
                     # button
                     btn = QtWidgets.QToolButton(self)
@@ -113,7 +116,10 @@ class DCKit(QtWidgets.QMainWindow):
                         item.setToolTip(str(val))
                         item.setFlags(QtCore.Qt.ItemIsEnabled)
                     elif key == "flow rate":
-                        item.setText("{:.5f}".format(val))
+                        if info["chip region"][1] == "channel":
+                            item.setText("{:.5f}".format(val))
+                        else:
+                            item.setText("reservoir")
                         item.setFlags(QtCore.Qt.ItemIsEnabled)
                     else:
                         item.setFlags(QtCore.Qt.ItemIsEnabled)
