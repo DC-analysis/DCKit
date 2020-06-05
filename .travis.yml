@@ -32,7 +32,7 @@ install:
 - travis_retry pip install -e .
 # debug: install older version of imageio
 - pip install imageio==2.4.1
-- pip uninstall imageio-ffmpeg
+- pip uninstall -y imageio-ffmpeg
 # for tests:
 - travis_retry pip install codecov coverage flake8
 - pip freeze
