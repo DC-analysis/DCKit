@@ -14,12 +14,14 @@ import imageio
 import imageio_ffmpeg
 import nptdms
 import numpy
-from PyQt5 import uic, QtCore, QtGui, QtWidgets
+from PyQt5 import uic, QtCore, QtWidgets
 
 from . import history
 from . import dlg_icheck
+from .dlg_icheck import IntegrityCheckDialog
 from . import meta_tool
 from . import update
+from .wait_cursor import show_wait_cursor, ShowWaitCursor
 from ._version import version as __version__
 
 
@@ -63,9 +65,9 @@ class DCKit(QtWidgets.QMainWindow):
             # Update Check
             self.on_action_check_update(True)
 
+    @show_wait_cursor
     def append_paths(self, pathlist):
         """Append selected paths to table"""
-        QtWidgets.QApplication.setOverrideCursor(QtCore.Qt.WaitCursor)
         datas = []
         # get meta data for all paths
         for path in pathlist:
@@ -125,7 +127,6 @@ class DCKit(QtWidgets.QMainWindow):
             self.tableWidget.setColumnWidth(info["flow rate"][0], 100)
             self.tableWidget.setColumnWidth(info["event count"][0], 80)
             self.tableWidget.setColumnWidth(info["sample"][0], 300)
-        QtWidgets.QApplication.restoreOverrideCursor()
 
     def dragEnterEvent(self, e):
         """Whether files are accepted"""
@@ -149,7 +150,7 @@ class DCKit(QtWidgets.QMainWindow):
     def get_metadata(self, row):
         path = self.get_path(row)
         # get metadata
-        metadata = copy.deepcopy(dlg_icheck.IntegrityCheckDialog.
+        metadata = copy.deepcopy(IntegrityCheckDialog.
                                  user_metadata.get(path, {}))
         # update sample name
         newname = self.tableWidget.item(row, 3).text()
@@ -301,7 +302,7 @@ class DCKit(QtWidgets.QMainWindow):
             raise ValueError("Could not find button {}".format(button))
         # get path
         path = self.pathlist[did]
-        dlg = dlg_icheck.IntegrityCheckDialog(self, path)
+        dlg = IntegrityCheckDialog(self, path)
         if skip_ui:
             dlg.done(True)
         else:
@@ -329,34 +330,35 @@ class DCKit(QtWidgets.QMainWindow):
         invalid = []
         paths_compressed = []
         if pout:
-            pout = pathlib.Path(pout)
-            for row in range(self.tableWidget.rowCount()):
-                path = self.get_path(row)
-                metadata = self.get_metadata(row)
-                name = metadata["experiment"]["sample"]
-                prtdc = pout / get_rtdc_output_name(origin_path=path,
-                                                    sample_name=name)
-                if path.suffix == ".rtdc":
-                    task_dict = {
-                        "name": "compress HDF5 data",
-                    }
-                    dclab.cli.compress(path_in=path, path_out=prtdc)
-                    append_execution_log(prtdc, task_dict)
-                    task_dict_meta = self.write_metadata(prtdc, metadata)
-                    if task_dict_meta:
-                        append_execution_log(prtdc, task_dict_meta)
-                    # write any warnings to separate log files
-                    extract_warning_logs(prtdc)
-                    # update list for UI
-                    details.append("{} -> {}".format(path, prtdc))
-                    paths_compressed.append(prtdc)
-                    # repack if checked
-                    # (we still did the compression in case dclab needed
-                    # to fix things)
-                    self.repack(prtdc)
-                else:
-                    # do not do anything with .rtdc files
-                    invalid.append(path)
+            with ShowWaitCursor():
+                pout = pathlib.Path(pout)
+                for row in range(self.tableWidget.rowCount()):
+                    path = self.get_path(row)
+                    metadata = self.get_metadata(row)
+                    name = metadata["experiment"]["sample"]
+                    prtdc = pout / get_rtdc_output_name(origin_path=path,
+                                                        sample_name=name)
+                    if path.suffix == ".rtdc":
+                        task_dict = {
+                            "name": "compress HDF5 data",
+                        }
+                        dclab.cli.compress(path_in=path, path_out=prtdc)
+                        append_execution_log(prtdc, task_dict)
+                        task_dict_meta = self.write_metadata(prtdc, metadata)
+                        if task_dict_meta:
+                            append_execution_log(prtdc, task_dict_meta)
+                        # write any warnings to separate log files
+                        extract_warning_logs(prtdc)
+                        # update list for UI
+                        details.append("{} -> {}".format(path, prtdc))
+                        paths_compressed.append(prtdc)
+                        # repack if checked
+                        # (we still did the compression in case dclab needed
+                        # to fix things)
+                        self.repack(prtdc)
+                    else:
+                        # do not do anything with .rtdc files
+                        invalid.append(path)
         else:
             return
         if invalid:
@@ -383,15 +385,11 @@ class DCKit(QtWidgets.QMainWindow):
         msg.exec_()
         return paths_compressed, invalid
 
+    @show_wait_cursor
     def on_task_integrity_all(self):
-        QtWidgets.QApplication.setOverrideCursor(
-            QtGui.QCursor(QtCore.Qt.WaitCursor))
-
         for did in self.integrity_buttons:
             btn = self.integrity_buttons[did]
             self.on_integrity_check(button=btn)
-
-        QtWidgets.QApplication.restoreOverrideCursor()
 
     def on_task_join(self):
         """Join multiple RT-DC measurements"""
@@ -413,7 +411,8 @@ class DCKit(QtWidgets.QMainWindow):
         for row in range(self.tableWidget.rowCount()):
             pi.append(self.get_path(row))
         if pi:
-            dclab.cli.join(path_out=po, paths_in=pi, metadata=metadata)
+            with ShowWaitCursor():
+                dclab.cli.join(path_out=po, paths_in=pi, metadata=metadata)
             # repack if checked
             self.repack(po)
             # finally, show the feedback dialog
@@ -432,23 +431,24 @@ class DCKit(QtWidgets.QMainWindow):
         """Update the metadata including the sample names of the datasets"""
         invalid = []
         details = []
-        for row in range(self.tableWidget.rowCount()):
-            path = self.get_path(row)
-            # check whether we are allowed to do this
-            if path.suffix == ".tdms":
-                # not supported for tdms files
-                invalid.append(path)
-            else:
-                metadata = self.get_metadata(row)
-                task_dict_meta = self.write_metadata(path, metadata)
-                if task_dict_meta:
-                    append_execution_log(path, task_dict_meta)
-                    # update list for UI
-                    details.append("{}: update metadata".format(path))
-                    # remove item from check cache
-                    if path in dlg_icheck.IntegrityCheckDialog.user_metadata:
-                        dlg_icheck.IntegrityCheckDialog.user_metadata.pop(path)
-                dlg_icheck.check_dataset.cache_clear()
+        with ShowWaitCursor():
+            for row in range(self.tableWidget.rowCount()):
+                path = self.get_path(row)
+                # check whether we are allowed to do this
+                if path.suffix == ".tdms":
+                    # not supported for tdms files
+                    invalid.append(path)
+                else:
+                    metadata = self.get_metadata(row)
+                    task_dict_meta = self.write_metadata(path, metadata)
+                    if task_dict_meta:
+                        append_execution_log(path, task_dict_meta)
+                        # update list for UI
+                        details.append("{}: update metadata".format(path))
+                        # remove item from check cache
+                        if path in IntegrityCheckDialog.user_metadata:
+                            IntegrityCheckDialog.user_metadata.pop(path)
+                    dlg_icheck.check_dataset.cache_clear()
         if invalid:
             # Show an error dialog for the tdms files
             msg = QtWidgets.QMessageBox()
@@ -489,41 +489,43 @@ class DCKit(QtWidgets.QMainWindow):
         paths_converted = []
         if pout:
             pout = pathlib.Path(pout)
-            for row in range(self.tableWidget.rowCount()):
-                path = self.get_path(row)
-                metadata = self.get_metadata(row)
-                name = metadata["experiment"]["sample"]
-                prtdc = pout / get_rtdc_output_name(origin_path=path,
-                                                    sample_name=name)
-                if path.suffix == ".tdms":
-                    task_dict = {
-                        "name": "convert .tdms to .rtdc",
-                    }
-                    try:
-                        dclab.cli.tdms2rtdc(path_tdms=path,
-                                            path_rtdc=prtdc,
-                                            compute_features=False,
-                                            skip_initial_empty_image=True,
-                                            verbose=False)
-                    except BaseException:
-                        errors.append([path, traceback.format_exc()])
-                        if prtdc.exists():
-                            prtdc.unlink()
+            with ShowWaitCursor():
+                for row in range(self.tableWidget.rowCount()):
+                    path = self.get_path(row)
+                    metadata = self.get_metadata(row)
+                    name = metadata["experiment"]["sample"]
+                    prtdc = pout / get_rtdc_output_name(origin_path=path,
+                                                        sample_name=name)
+                    if path.suffix == ".tdms":
+                        task_dict = {
+                            "name": "convert .tdms to .rtdc",
+                        }
+                        try:
+                            dclab.cli.tdms2rtdc(path_tdms=path,
+                                                path_rtdc=prtdc,
+                                                compute_features=False,
+                                                skip_initial_empty_image=True,
+                                                verbose=False)
+                        except BaseException:
+                            errors.append([path, traceback.format_exc()])
+                            if prtdc.exists():
+                                prtdc.unlink()
+                        else:
+                            append_execution_log(prtdc, task_dict)
+                            task_dict_meta = self.write_metadata(prtdc,
+                                                                 metadata)
+                            if task_dict_meta:
+                                append_execution_log(prtdc, task_dict_meta)
+                            # write any warnings to separate log files
+                            extract_warning_logs(prtdc)
+                            # update list for UI
+                            details.append("{} -> {}".format(path, prtdc))
+                            paths_converted.append(prtdc)
+                            # repack if checked
+                            self.repack(prtdc)
                     else:
-                        append_execution_log(prtdc, task_dict)
-                        task_dict_meta = self.write_metadata(prtdc, metadata)
-                        if task_dict_meta:
-                            append_execution_log(prtdc, task_dict_meta)
-                        # write any warnings to separate log files
-                        extract_warning_logs(prtdc)
-                        # update list for UI
-                        details.append("{} -> {}".format(path, prtdc))
-                        paths_converted.append(prtdc)
-                        # repack if checked
-                        self.repack(prtdc)
-                else:
-                    # do not do anything with .rtdc files
-                    invalid.append(path)
+                        # do not do anything with .rtdc files
+                        invalid.append(path)
         if invalid:
             # Show an error dialog for the tdms files
             msg = QtWidgets.QMessageBox()
@@ -559,6 +561,7 @@ class DCKit(QtWidgets.QMainWindow):
         msg.exec_()
         return paths_converted, invalid, errors
 
+    @show_wait_cursor
     def repack(self, path):
         """repack and strip logs if the checkbox is checked"""
         if not self.checkBox_repack.isChecked():
@@ -576,6 +579,7 @@ class DCKit(QtWidgets.QMainWindow):
             path.unlink()
             path_temp.rename(path)
 
+    @show_wait_cursor
     def write_metadata(self, path, metadata):
         """Write metadata to an HDF5 file
 
