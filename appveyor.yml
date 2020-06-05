@@ -54,7 +54,7 @@ after_test:
   # Run pyinstaller
   - "pyinstaller -y --log-level=WARN .appveyor\\dckit.spec"
   # Run the binary (the most simple test)
-  - "dist\\ShapeOut2\\ShapeOut2.exe --version"
+  - "dist\\DCKit\\DCKit.exe --version"
   # Create InnoSetup installers
   # Generate iss file
   - "python .appveyor\\make_iss.py"
