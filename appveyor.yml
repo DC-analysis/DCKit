@@ -26,8 +26,6 @@ install:
   # Install dckit and its dependencies
   - "appveyor-retry python -m pip install --upgrade pip"
   - "appveyor-retry pip install -e ."
-  # debug
-  - appveyor-retry pip install PyQt5==5.14.2 PyQt5-sip==12.7.2
   # Install pyinstaller (includes dependency for pywin32)
   - "appveyor-retry pip install pyinstaller==3.6"
   # Show the installed packages

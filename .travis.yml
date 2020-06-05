@@ -12,7 +12,7 @@ matrix:
    language: generic
    env:
     # see https://www.python.org/downloads/mac-osx/ for valid versions
-    - MAC_PYTHON_VERSION=3.6.6
+    - MAC_PYTHON_VERSION=3.6.8
     - MAC_PYTHON_OSX_VERSION=10.6
    sudo: required
  - os: linux
@@ -30,8 +30,6 @@ install:
 - travis_retry pip install PyQt5==5.14.2 PyQt5-sip==12.7.2
 # install package
 - travis_retry pip install -e .
-# debug: install older version of imageio
-- pip install imageio==2.4.1
 # for tests:
 - travis_retry pip install codecov coverage flake8
 - pip freeze
