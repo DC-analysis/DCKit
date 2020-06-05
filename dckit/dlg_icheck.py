@@ -7,6 +7,8 @@ import dclab
 from PyQt5 import uic, QtWidgets
 from dclab.rtdc_dataset.check import VALID_CHOICES
 
+from . import meta_tool
+
 
 class IntegrityCheckDialog(QtWidgets.QDialog):
     #: Remembers user-defined metadata
@@ -112,13 +114,13 @@ class IntegrityCheckDialog(QtWidgets.QDialog):
         self.textEdit.setText(text)
 
         # Logs
-        with dclab.new_dataset(self.path) as ds:
-            if ds.logs:
-                for log in ds.logs:
-                    self.comboBox_logs.addItem(log, log)
-            else:
-                self.widget_logs.hide()
-            self.comboBox_logs.currentIndexChanged.connect(self.on_logs)
+        logs = meta_tool.get_rtdc_logs(self.path)
+        if logs:
+            for log in logs:
+                self.comboBox_logs.addItem(log, log)
+        else:
+            self.widget_logs.hide()
+        self.comboBox_logs.currentIndexChanged.connect(self.on_logs)
 
     def check(self, use_metadata=True, expand_section=True):
         if use_metadata:
@@ -151,9 +153,9 @@ class IntegrityCheckDialog(QtWidgets.QDialog):
             value = self.metadata[sec][key]
         # Try dataset
         if value is None:
-            with dclab.new_dataset(self.path) as ds:
-                if sec in ds.config and key in ds.config[sec]:
-                    value = ds.config[sec][key]
+            config = meta_tool.get_rtdc_config(self.path)
+            if sec in config and key in config[sec]:
+                value = config[sec][key]
         return value
 
     def on_logs(self):
@@ -165,9 +167,9 @@ class IntegrityCheckDialog(QtWidgets.QDialog):
         path_ui = pkg_resources.resource_filename("dckit", "dlg_log.ui")
         uic.loadUi(path_ui, dlg)
         dlg.label.setText(log)
-        with dclab.new_dataset(self.path) as ds:
-            text = "\n".join(ds.logs[log])
-            dlg.plainTextEdit.setPlainText(text)
+        logs = meta_tool.get_rtdc_logs(self.path)
+        text = "\n".join(logs[log])
+        dlg.plainTextEdit.setPlainText(text)
         dlg.exec_()
 
     def save_current_metadata(self):

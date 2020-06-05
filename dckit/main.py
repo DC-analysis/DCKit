@@ -294,7 +294,8 @@ class DCKit(QtWidgets.QMainWindow):
         else:
             self.pushButton_metadata.setEnabled(True)
 
-    def on_integrity_check(self, b=False, button=None):
+    @QtCore.pyqtSlot()
+    def on_integrity_check(self, button=None):
         if button is None:
             button = self.sender()
             skip_ui = False
@@ -308,7 +309,8 @@ class DCKit(QtWidgets.QMainWindow):
             raise ValueError("Could not find button {}".format(button))
         # get path
         path = self.pathlist[did]
-        dlg = IntegrityCheckDialog(self, path)
+        with ShowWaitCursor():
+            dlg = IntegrityCheckDialog(self, path)
         if skip_ui:
             dlg.done(True)
         else:
@@ -328,6 +330,7 @@ class DCKit(QtWidgets.QMainWindow):
             sample = meta_tool.get_sample_name(path)
             self.tableWidget.item(row, 3).setText(sample)
 
+    @QtCore.pyqtSlot()
     def on_task_compress(self):
         """Compress .rtdc data losslessly"""
         # Open the target directory
@@ -392,11 +395,13 @@ class DCKit(QtWidgets.QMainWindow):
         return paths_compressed, invalid
 
     @show_wait_cursor
+    @QtCore.pyqtSlot()
     def on_task_integrity_all(self):
         for did in self.integrity_buttons:
             btn = self.integrity_buttons[did]
             self.on_integrity_check(button=btn)
 
+    @QtCore.pyqtSlot()
     def on_task_join(self):
         """Join multiple RT-DC measurements"""
         # show a dialog with sample name
@@ -433,6 +438,7 @@ class DCKit(QtWidgets.QMainWindow):
             msg.setWindowTitle("Warning")
         msg.exec_()
 
+    @QtCore.pyqtSlot()
     def on_task_metadata(self):
         """Update the metadata including the sample names of the datasets"""
         invalid = []
@@ -486,6 +492,7 @@ class DCKit(QtWidgets.QMainWindow):
             msg.setWindowTitle("Warning")
         msg.exec_()
 
+    @QtCore.pyqtSlot()
     def on_task_tdms2rtdc(self):
         """Convert .tdms files to .rtdc files"""
         pout = QtWidgets.QFileDialog.getExistingDirectory()
@@ -661,11 +668,11 @@ def excepthook(etype, value, trace):
 
 def extract_warning_logs(path):
     path = pathlib.Path(path)
-    with dclab.new_dataset(path) as ds:
-        for lname in ds.logs:
-            if lname.count("warnings"):
-                plog = path.with_name(path.stem + "_" + lname + ".log")
-                plog.write_text("\r\n".join(ds.logs[lname]))
+    logs = meta_tool.get_rtdc_logs(path)
+    for lname in logs:
+        if lname.count("warnings"):
+            plog = path.with_name(path.stem + "_" + lname + ".log")
+            plog.write_text("\r\n".join(logs[lname]))
 
 
 def get_rtdc_output_name(origin_path, sample_name):

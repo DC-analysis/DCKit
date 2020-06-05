@@ -1,3 +1,4 @@
+import copy
 import functools
 import pathlib
 import warnings
@@ -173,11 +174,20 @@ def get_flow_rate(fname):
     return flow_rate
 
 
-@functools.lru_cache(maxsize=1000)
 def get_rtdc_config(path):
+    return get_rtdc_meta(path)[0]
+
+
+def get_rtdc_logs(path):
+    return get_rtdc_meta(path)[1]
+
+
+@functools.lru_cache(maxsize=1000)
+def get_rtdc_meta(path):
     with dclab.new_dataset(path) as ds:
         config = ds.config.copy()
-    return config
+        logs = copy.deepcopy(dict(ds.logs))
+    return config, logs
 
 
 def get_run_index(fname):
