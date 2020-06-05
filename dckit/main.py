@@ -669,10 +669,16 @@ def extract_warning_logs(path):
 
 
 def get_rtdc_output_name(origin_path, sample_name):
-    name = "{}_M{}_{}_{}.rtdc".format(
+
+    if meta_tool.get_chip_region(origin_path) == "channel":
+        fl_or_res = "{:.4f}uls".format(meta_tool.get_flow_rate(origin_path))
+    else:
+        fl_or_res = "reservoir"
+
+    name = "{}_M{}_{}_{}_{}.rtdc".format(
         meta_tool.get_date(origin_path),
         meta_tool.get_run_index(origin_path),
-        # deal with unicode characters (replace with "?")
+        fl_or_res,
         sample_name,
         sha256(origin_path)[:8])
     return get_valid_filename(name)
