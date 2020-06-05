@@ -53,14 +53,15 @@ class DCKit(QtWidgets.QMainWindow):
         self.pathlist = []
         # contains all integrity buttons (keys are DCKit-ids)
         self.integrity_buttons = {}
-        if check_update:
-            # Update Check
-            self.on_action_check_update(True)
         # if "--version" was specified, print the version and exit
         if "--version" in sys.argv:
             print(__version__)
             QtWidgets.QApplication.processEvents()
             sys.exit(0)
+        # check update after version printing (QThread: Destroyed error)
+        if check_update:
+            # Update Check
+            self.on_action_check_update(True)
 
     def append_paths(self, pathlist):
         """Append selected paths to table"""
