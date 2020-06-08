@@ -1,5 +1,6 @@
-0.9.2
+0.10.0
  - fix: properly cache dataset check and metadata information
+ - feat: allow to set global default values for metadata
  - setup: bump dclab from 0.27.5 to 0.27.6 (reduce warning messages
    and remove final empty images for tdms2rtdc)
  - enh: do not show flow rate for reservoir measurements - show

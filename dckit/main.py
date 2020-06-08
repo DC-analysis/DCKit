@@ -1,4 +1,3 @@
-import copy
 import hashlib
 import pathlib
 import pkg_resources
@@ -155,9 +154,7 @@ class DCKit(QtWidgets.QMainWindow):
 
     def get_metadata(self, row):
         path = self.get_path(row)
-        # get metadata
-        metadata = copy.deepcopy(IntegrityCheckDialog.
-                                 user_metadata.get(path, {}))
+        metadata = IntegrityCheckDialog.metadata_from_path(path)
         # update sample name
         newname = self.tableWidget.item(row, 3).text()
         if "experiment" not in metadata:

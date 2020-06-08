@@ -1,3 +1,4 @@
+import copy
 import json
 import functools
 import pkg_resources
@@ -8,11 +9,18 @@ from PyQt5 import uic, QtWidgets
 from dclab.rtdc_dataset.check import VALID_CHOICES
 
 from . import meta_tool
+from .wait_cursor import show_wait_cursor
 
 
 class IntegrityCheckDialog(QtWidgets.QDialog):
+    #: A dictionary of missing metadata keys
+    editable_metadata = {}
     #: Remembers user-defined metadata
     user_metadata = {}
+    #: Global metadata defaults - Do not update any dictionary with
+    #: this. It may override things! Instead, use the classmethod
+    #: `metadata_from_path` or the function `get_metadata_value`.
+    default_metadata = {}
 
     def __init__(self, parent, path, *args, **kwargs):
         QtWidgets.QDialog.__init__(self, parent, *args, **kwargs)
@@ -24,11 +32,49 @@ class IntegrityCheckDialog(QtWidgets.QDialog):
         if self.path not in IntegrityCheckDialog.user_metadata:
             IntegrityCheckDialog.user_metadata[self.path] = {}
         self.metadata = IntegrityCheckDialog.user_metadata[self.path]
+        #: missing metadata keys
+        if self.path not in IntegrityCheckDialog.editable_metadata:
+            IntegrityCheckDialog.editable_metadata[self.path] = {}
+        self.editables = IntegrityCheckDialog.editable_metadata[self.path]
         #: return state ("unchecked", "passed", "incomplete", "tolerable")
         self.state = "unchecked"
-
         # check and fill data
         self.populate_ui()
+        # signals and slots
+        self.toolButton_global.clicked.connect(self.on_global)
+
+    @classmethod
+    def metadata_from_path(cls, path):
+        """Return the missing metadata for a specific path
+
+        This makes use of user_metadata, editable_metadata, and
+        default_metadata.
+
+        default_metadata is only used if the data are not present
+        in user_metadata and given in editable_metadata.
+        """
+        if path not in cls.user_metadata:
+            # first create the class to populate ´editable_metadata´
+            IntegrityCheckDialog(None, path)
+        editables = cls.editable_metadata[path]
+        userdata = cls.user_metadata[path]
+        defaults = cls.default_metadata
+
+        metadata = {}
+        # first fill up the default values (if applicable)
+        for sec in editables:
+            if sec not in metadata:
+                metadata[sec] = {}
+            for key in editables[sec]:
+                if sec in defaults and key in defaults[sec]:
+                    metadata[sec][key] = defaults[sec][key]
+        # then fill up the userdata
+        for sec in userdata:
+            if sec not in metadata:
+                metadata[sec] = {}
+            for key in userdata[sec]:
+                metadata[sec][key] = userdata[sec][key]
+        return metadata
 
     def populate_ui(self):
         """Run check and set missing UI elements"""
@@ -98,6 +144,11 @@ class IntegrityCheckDialog(QtWidgets.QDialog):
                 if sec not in self.user_widgets:
                     self.user_widgets[sec] = {}
                 self.user_widgets[sec][key] = wid
+                # remember which keys were missing
+                if sec not in self.editables:
+                    self.editables[sec] = []
+                if key not in self.editables[sec]:
+                    self.editables[sec].append(key)
         if not miss_count:
             self.groupBox_missing.hide()
         if not wrong_count:
@@ -130,6 +181,7 @@ class IntegrityCheckDialog(QtWidgets.QDialog):
         cues = check_dataset(self.path, metadata_dump, expand_section)
         return cues
 
+    @show_wait_cursor
     def done(self, r):
         if r:
             # save metadata
@@ -147,6 +199,15 @@ class IntegrityCheckDialog(QtWidgets.QDialog):
         super(IntegrityCheckDialog, self).done(r)
 
     def get_metadata_value(self, sec, key):
+        """Return the metadata value for a specific section and key
+
+        This function gets the metadata from three sources with the
+        following priority:
+
+        1. self.metadata (previously saved by the user)
+        2. dataset on disk (using meta_tool)
+        3. self.default_metadata
+        """
         value = None
         # Try user-defined values
         if sec in self.metadata and key in self.metadata[sec]:
@@ -156,7 +217,19 @@ class IntegrityCheckDialog(QtWidgets.QDialog):
             config = meta_tool.get_rtdc_config(self.path)
             if sec in config and key in config[sec]:
                 value = config[sec][key]
+        # Try default/global metadata
+        if (value is None
+            and sec in self.default_metadata
+                and key in self.default_metadata[sec]):
+            value = self.default_metadata[sec][key]
         return value
+
+    def on_global(self):
+        """Use the current metadata as default metadata"""
+        # We will override self.default_metadata with this
+        self.save_current_metadata()
+        self.default_metadata.clear()
+        self.default_metadata.update(copy.deepcopy(self.metadata))
 
     def on_logs(self):
         log = self.comboBox_logs.currentData()
