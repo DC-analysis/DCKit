@@ -1,5 +1,7 @@
 0.9.2
  - fix: properly cache dataset check and metadata information
+ - setup: bump dclab from 0.27.5 to 0.27.6 (reduce warning messages
+   and remove final empty images for tdms2rtdc)
  - enh: do not show flow rate for reservoir measurements - show
    "reservoir" instead
  - enh: include flow rate or reservoir in output file name
