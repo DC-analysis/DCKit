@@ -172,10 +172,13 @@ class IntegrityCheckDialog(QtWidgets.QDialog):
         else:
             self.widget_logs.hide()
         self.comboBox_logs.currentIndexChanged.connect(self.on_logs)
+        # save metadata (updates from defaults/global)
+        self.save_current_metadata()
 
     def check(self, use_metadata=True, expand_section=True):
         if use_metadata:
-            metadata_dump = json.dumps(self.metadata, sort_keys=True)
+            metadata_dump = json.dumps(self.metadata_from_path(self.path),
+                                       sort_keys=True)
         else:
             metadata_dump = json.dumps({})
         cues = check_dataset(self.path, metadata_dump, expand_section)
@@ -187,7 +190,7 @@ class IntegrityCheckDialog(QtWidgets.QDialog):
             # save metadata
             self.save_current_metadata()
         # run check again
-        cues = self.check()
+        cues = self.check(use_metadata=True, expand_section=False)
         levels = dclab.rtdc_dataset.check.ICue.get_level_summary(cues)
         if levels["violation"]:
             self.state = "failed"
