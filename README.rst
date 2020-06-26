@@ -47,6 +47,6 @@ Testing
 .. |Tests Status Win| image:: https://img.shields.io/appveyor/ci/paulmueller/DCKit/master.svg?label=build_win
    :target: https://ci.appveyor.com/project/paulmueller/DCKit
 .. |Tests Status Linux macOS| image:: https://img.shields.io/travis/ZELLMECHANIK-DRESDEN/DCKit.svg?label=tests_linux_macos
-   :target: https://travis-ci.org/ZELLMECHANIK-DRESDEN/DCKit
+   :target: https://travis-ci.com/ZELLMECHANIK-DRESDEN/DCKit
 .. |Coverage Status| image:: https://img.shields.io/codecov/c/github/ZELLMECHANIK-DRESDEN/DCKit/master.svg
    :target: https://codecov.io/gh/ZELLMECHANIK-DRESDEN/DCKit
