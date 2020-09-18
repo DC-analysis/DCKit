@@ -1,6 +1,8 @@
 0.11.0
  - feat: add option to split large datasets
  - setup: bump dcalb from 0.27.6 to 0.28.0 (splitting datasets)
+ - fix: file dialogs did not always immediately close when
+   OK was pressed
 0.10.0
  - fix: properly cache dataset check and metadata information
  - feat: allow to set global default values for metadata

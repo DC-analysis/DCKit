@@ -247,7 +247,7 @@ class DCKit(QtWidgets.QMainWindow):
     def on_add_folder(self):
         """Search folder for RT-DC data and add to table"""
         # show a dialog for selecting folder
-        path = QtWidgets.QFileDialog.getExistingDirectory()
+        path = QtWidgets.QFileDialog.getExistingDirectory(self)
         if not path:
             return
         # find RT-DC data
@@ -261,7 +261,7 @@ class DCKit(QtWidgets.QMainWindow):
         """Select .tdms and .rtdc files and add to table"""
         # show a dialog for adding multiple single files (.tdms and .rtdc)
         pathlist, _ = QtWidgets.QFileDialog.getOpenFileNames(
-            None,
+            self,
             'Select RT-DC data',
             '',
             'RT-DC data (*.tdms *.rtdc)')
@@ -332,7 +332,7 @@ class DCKit(QtWidgets.QMainWindow):
     def on_task_compress(self):
         """Compress .rtdc data losslessly"""
         # Open the target directory
-        pout = QtWidgets.QFileDialog.getExistingDirectory()
+        pout = QtWidgets.QFileDialog.getExistingDirectory(self)
         details = []
         invalid = []
         paths_compressed = []
@@ -500,37 +500,39 @@ class DCKit(QtWidgets.QMainWindow):
         paths_split = []
 
         if okPressed:
-            pout = QtWidgets.QFileDialog.getExistingDirectory()
+            pout = QtWidgets.QFileDialog.getExistingDirectory(self)
             if pout:
-                pout = pathlib.Path(pout)
-                task_dict = {
-                    "name": "split every {} events".format(split_events),
-                }
-                for row in range(self.tableWidget.rowCount()):
-                    path = self.get_path(row)
-                    try:
-                        psplit = dclab.cli.split(path_in=path,
-                                                 path_out=pout,
-                                                 split_events=split_events,
-                                                 skip_initial_empty_image=True,
-                                                 skip_final_empty_image=True,
-                                                 ret_out_paths=True,
-                                                 verbose=False)
-                    except BaseException:
-                        errors.append([path, traceback.format_exc()])
-                        # remove erronuous files
-                        for pp in pout.glob(path.stem+"_*"):
-                            pp.unlink()
-                    else:
-                        for pp in psplit:
-                            append_execution_log(pp, task_dict)
-                            # write any warnings to separate log files
-                            extract_warning_logs(pp)
-                            # update list for UI
-                            details.append("created {}".format(pp))
-                            # repack if checked
-                            self.repack(pp)
-                        paths_split.append(path)
+                with ShowWaitCursor():
+                    pout = pathlib.Path(pout)
+                    task_dict = {
+                        "name": "split every {} events".format(split_events),
+                    }
+                    for row in range(self.tableWidget.rowCount()):
+                        path = self.get_path(row)
+                        try:
+                            psplit = dclab.cli.split(
+                                path_in=path,
+                                path_out=pout,
+                                split_events=split_events,
+                                skip_initial_empty_image=True,
+                                skip_final_empty_image=True,
+                                ret_out_paths=True,
+                                verbose=False)
+                        except BaseException:
+                            errors.append([path, traceback.format_exc()])
+                            # remove erronuous files
+                            for pp in pout.glob(path.stem+"_*"):
+                                pp.unlink()
+                        else:
+                            for pp in psplit:
+                                append_execution_log(pp, task_dict)
+                                # write any warnings to separate log files
+                                extract_warning_logs(pp)
+                                # update list for UI
+                                details.append("created {}".format(pp))
+                                # repack if checked
+                                self.repack(pp)
+                            paths_split.append(path)
         if errors:
             # Show an error dialog for the files that could not be converted
             msg = QtWidgets.QMessageBox()
@@ -559,7 +561,7 @@ class DCKit(QtWidgets.QMainWindow):
     @QtCore.pyqtSlot()
     def on_task_tdms2rtdc(self):
         """Convert .tdms files to .rtdc files"""
-        pout = QtWidgets.QFileDialog.getExistingDirectory()
+        pout = QtWidgets.QFileDialog.getExistingDirectory(self)
         details = []
         errors = []
         invalid = []
