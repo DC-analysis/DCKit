@@ -39,6 +39,7 @@ class DCKit(QtWidgets.QMainWindow):
         self.pushButton_integrity.clicked.connect(self.on_task_integrity_all)
         self.pushButton_compress.clicked.connect(self.on_task_compress)
         self.pushButton_metadata.clicked.connect(self.on_task_metadata)
+        self.pushButton_split.clicked.connect(self.on_task_split)
         self.pushButton_tdms2rtdc.clicked.connect(self.on_task_tdms2rtdc)
         self.pushButton_join.clicked.connect(self.on_task_join)
         self.tableWidget.itemChanged.connect(self.on_table_text_changed)
@@ -490,6 +491,72 @@ class DCKit(QtWidgets.QMainWindow):
         msg.exec_()
 
     @QtCore.pyqtSlot()
+    def on_task_split(self):
+        split_events, okPressed = QtWidgets.QInputDialog.getInt(
+            self, "Events per output file", "Limit events to:",
+            10000, 0, 1000000, 5000)
+        details = []
+        errors = []
+        paths_split = []
+
+        if okPressed:
+            pout = QtWidgets.QFileDialog.getExistingDirectory()
+            if pout:
+                pout = pathlib.Path(pout)
+                task_dict = {
+                    "name": "split every {} events".format(split_events),
+                }
+                for row in range(self.tableWidget.rowCount()):
+                    path = self.get_path(row)
+                    try:
+                        psplit = dclab.cli.split(path_in=path,
+                                                 path_out=pout,
+                                                 split_events=split_events,
+                                                 skip_initial_empty_image=True,
+                                                 skip_final_empty_image=True,
+                                                 ret_out_paths=True,
+                                                 verbose=False)
+                    except BaseException:
+                        errors.append([path, traceback.format_exc()])
+                        # remove erronuous files
+                        for pp in pout.glob(path.stem+"_*"):
+                            pp.unlink()
+                    else:
+                        for pp in psplit:
+                            append_execution_log(pp, task_dict)
+                            # write any warnings to separate log files
+                            extract_warning_logs(pp)
+                            # update list for UI
+                            details.append("created {}".format(pp))
+                            # repack if checked
+                            self.repack(pp)
+                        paths_split.append(path)
+        if errors:
+            # Show an error dialog for the files that could not be converted
+            msg = QtWidgets.QMessageBox()
+            msg.setIcon(QtWidgets.QMessageBox.Critical)
+            msg.setText("Errors encountered while splitting!")
+            msg.setWindowTitle("Unexpected Error")
+            msg.setDetailedText(
+                "Affected files are:\n\n"
+                + "\n\n".join(["{}:\n{}".format(*e) for e in errors]))
+            msg.exec_()
+
+        # finally, show the feedback dialog
+        msg = QtWidgets.QMessageBox()
+        if len(details):
+            msg.setIcon(QtWidgets.QMessageBox.Information)
+            msg.setText("Splitting successful!")
+            msg.setWindowTitle("Success")
+            msg.setDetailedText("\n\n".join(details))
+        else:
+            msg.setIcon(QtWidgets.QMessageBox.Warning)
+            msg.setText("Nothing to do!")
+            msg.setWindowTitle("Warning")
+        msg.exec_()
+        return paths_split, errors
+
+    @QtCore.pyqtSlot()
     def on_task_tdms2rtdc(self):
         """Convert .tdms files to .rtdc files"""
         pout = QtWidgets.QFileDialog.getExistingDirectory()
@@ -515,6 +582,7 @@ class DCKit(QtWidgets.QMainWindow):
                                                 path_rtdc=prtdc,
                                                 compute_features=False,
                                                 skip_initial_empty_image=True,
+                                                skip_final_empty_image=True,
                                                 verbose=False)
                         except BaseException:
                             errors.append([path, traceback.format_exc()])
