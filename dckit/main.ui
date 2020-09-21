@@ -133,7 +133,7 @@
        <item>
         <widget class="QPushButton" name="pushButton_compress">
          <property name="toolTip">
-          <string>compress .rtdc files lossless to save disk space (includes update of metadata)</string>
+          <string>compress .rtdc files losslessly to save disk space (includes update of metadata)</string>
          </property>
          <property name="text">
           <string>Compress .rtdc</string>
@@ -146,7 +146,7 @@
           <bool>true</bool>
          </property>
          <property name="toolTip">
-          <string>join multiple measurements into a single .rtdc file ( (includes lossless compression)</string>
+          <string>join multiple measurements into a single .rtdc file (includes lossless compression)</string>
          </property>
          <property name="text">
           <string>Join measurements</string>
@@ -155,6 +155,9 @@
        </item>
        <item>
         <widget class="QPushButton" name="pushButton_split">
+         <property name="toolTip">
+          <string>split a large dataset into multiple smaller .rtdc files (includes lossless compression)</string>
+         </property>
          <property name="text">
           <string>Split measurements</string>
          </property>
