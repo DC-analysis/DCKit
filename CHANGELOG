@@ -1,7 +1,9 @@
 0.12.0
  - setup: correct installation directory on Windows
- - setup: bump dclab from 0.28.0 to 0.29.0 (new image_bg feature)
+ - setup: bump dclab from 0.28.0 to 0.29.1 (new image_bg feature,
+   relax fixed choices for [setup] 'medium')
  - fix: main window not focused after startup
+ - enh: allow to edit [setup] 'medium' if it is set to "other"
 0.11.0
  - feat: add option to split large datasets
  - setup: bump dcalb from 0.27.6 to 0.28.0 (splitting datasets)

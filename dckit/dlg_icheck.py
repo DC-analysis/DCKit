@@ -6,7 +6,7 @@ import warnings
 
 import dclab
 from PyQt5 import uic, QtWidgets
-from dclab.rtdc_dataset.check import VALID_CHOICES
+from dclab.features.emodulus.viscosity import KNOWN_MEDIA
 
 from . import meta_tool
 from .wait_cursor import show_wait_cursor
@@ -89,6 +89,9 @@ class IntegrityCheckDialog(QtWidgets.QDialog):
                 # label
                 sec = cue.cfg_section
                 key = cue.cfg_key
+                # standard choices we know of
+                if sec == "setup" and key == "medium":
+                    cue.cfg_choices = KNOWN_MEDIA + ["other"]
                 lab = QtWidgets.QLabel("[{}]: {}".format(sec, key))
                 lab.setToolTip(dclab.dfn.config_descr[sec][key])
                 if cue.level == "violation":
@@ -129,11 +132,11 @@ class IntegrityCheckDialog(QtWidgets.QDialog):
                         raise ValueError("No action specified '{}'".format(dt))
                 else:
                     wid = QtWidgets.QComboBox(self)
+                    wid.setEditable(True)  # allow user edits
                     wid.addItem("Please select", None)
-                    for item in VALID_CHOICES[sec][key]:
-                        wid.addItem(item, item)
-                    idx = wid.findData(self.get_metadata_value(sec, key))
-                    wid.setCurrentIndex(idx)
+                    for item in cue.cfg_choices:
+                        wid.addItem(item)
+                    wid.setCurrentText(self.get_metadata_value(sec, key))
                 if cue.category == "metadata missing":
                     self.gridLayout_missing.addWidget(wid, miss_count, 1)
                     miss_count += 1
@@ -253,7 +256,13 @@ class IntegrityCheckDialog(QtWidgets.QDialog):
             for key in self.user_widgets[sec]:
                 wid = self.user_widgets[sec][key]
                 if isinstance(wid, QtWidgets.QComboBox):
-                    value = wid.currentData()
+                    value_a = wid.currentData()
+                    if isinstance(value_a, bool):
+                        # for yes/no combobox
+                        value = value_a
+                    else:
+                        # for text combobox
+                        value = wid.currentText()
                 elif isinstance(wid, (QtWidgets.QSpinBox,
                                       QtWidgets.QDoubleSpinBox)):
                     value = wid.value()
@@ -278,6 +287,14 @@ def check_dataset(path, metadata_dump, expand_section):
             ds.config.update(metadata)
             ic = dclab.rtdc_dataset.check.IntegrityChecker(ds)
             cues = ic.check(expand_section=expand_section)
+            # Also check for medium "other" and offer to edit it
+            if ds.config.get("setup", {}).get("medium", "") in ["other", ""]:
+                cues.append(dclab.rtdc_dataset.check.ICue(
+                    msg="User might want to edit 'medium'",
+                    level="alert",
+                    category="metadata missing",
+                    cfg_section="setup",
+                    cfg_key="medium"))
         for ww in ws:
             cues.append(dclab.rtdc_dataset.check.ICue(
                 msg="{}: {}".format(ww.category.__name__, ww.message),
