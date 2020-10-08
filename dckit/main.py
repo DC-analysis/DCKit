@@ -64,6 +64,10 @@ class DCKit(QtWidgets.QMainWindow):
         if check_update:
             # Update Check
             self.on_action_check_update(True)
+        self.show()
+        self.raise_()
+        self.activateWindow()
+        self.setWindowState(QtCore.Qt.WindowState.WindowActive)
 
     @show_wait_cursor
     def append_paths(self, pathlist):
