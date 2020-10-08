@@ -1,3 +1,6 @@
+0.12.0
+ - setup: correct installation directory on Windows
+ - setup: bump dclab from 0.28.0 to 0.29.0 (new image_bg feature)
 0.11.0
  - feat: add option to split large datasets
  - setup: bump dcalb from 0.27.6 to 0.28.0 (splitting datasets)
