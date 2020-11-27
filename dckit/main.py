@@ -26,7 +26,7 @@ from ._version import version as __version__
 
 class DCKit(QtWidgets.QMainWindow):
     def __init__(self, check_update=True):
-        QtWidgets.QMainWindow.__init__(self)
+        super(DCKit, self).__init__()
         path_ui = pkg_resources.resource_filename("dckit", "main.ui")
         uic.loadUi(path_ui, self)
         self.setWindowTitle("DCKit {}".format(__version__))
