@@ -10,7 +10,7 @@ name = 'dckit'
 year = "2019"
 
 sys.path.insert(0, realpath(dirname(__file__))+"/"+name)
-from _version import version
+from _version import version  # noqa: E402
 
 setup(
     name=name,
@@ -34,11 +34,11 @@ setup(
     setup_requires=["pytest-runner"],
     tests_require=["pytest", "pytest-qt"],
     python_requires='>=3.6, <4',
-    entry_points={"gui_scripts" : ['dckit = dckit.__main__:main']},
+    entry_points={"gui_scripts": ['dckit = dckit.__main__:main']},
     keywords=["RT-DC", "deformability", "cytometry", "zellmechanik"],
-    classifiers= ['Operating System :: OS Independent',
-                  'Programming Language :: Python :: 3',
-                  'Intended Audience :: Science/Research',
-                  ],
+    classifiers=['Operating System :: OS Independent',
+                 'Programming Language :: Python :: 3',
+                 'Intended Audience :: Science/Research',
+                 ],
     platforms=['ALL']
-    )
+)

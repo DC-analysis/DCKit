@@ -1,3 +1,5 @@
+0.12.1
+ - ci: migrate to GitHub Actions
 0.12.0
  - setup: correct installation directory on Windows
  - setup: bump dclab from 0.28.0 to 0.29.1 (new image_bg feature,
