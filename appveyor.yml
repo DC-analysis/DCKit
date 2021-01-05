@@ -55,7 +55,7 @@ after_test:
   - python setup.py sdist
   - ps: "ls dist"
   # Run pyinstaller
-  - pyinstaller -y --log-level=WARN build_recipes\\win_dckit.spec
+  - pyinstaller -y --log-level=WARN build-recipes\\win_dckit.spec
   # Run the binary (the most simple test)
   - dist\\DCKit\\DCKit.exe --version
   # Create InnoSetup installers
