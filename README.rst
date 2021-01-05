@@ -1,7 +1,7 @@
 |DCKit|
 =======
 
-|PyPI Version| |Tests Status Linux macOS| |Tests Status Win| |Coverage Status|
+|PyPI Version| |Build Status Unix| |Build Status Win| |Coverage Status|
 
 
 **DCKit** is a graphical toolkit for performing several data editing
@@ -39,14 +39,14 @@ Testing
 
     pip install -e .
     python setup.py test
-    
+
 
 .. |DCKit| image:: https://raw.github.com/ZELLMECHANIK-DRESDEN/DCKit/master/docs/logo/dckit_h50.png
 .. |PyPI Version| image:: https://img.shields.io/pypi/v/dckit.svg
    :target: https://pypi.python.org/pypi/dckit
-.. |Tests Status Win| image:: https://img.shields.io/appveyor/ci/paulmueller/DCKit/master.svg?label=build_win
+.. |Build Status Unix| image:: https://img.shields.io/github/workflow/status/ZELLMECHANIK-DRESDEN/DCKit/Checks
+   :target: https://github.com/ZELLMECHANIK-DRESDEN/DCKit/actions?query=workflow%3AChecks
+.. |Build Status Win| image:: https://img.shields.io/appveyor/ci/paulmueller/DCKit/master.svg?label=build_win
    :target: https://ci.appveyor.com/project/paulmueller/DCKit
-.. |Tests Status Linux macOS| image:: https://img.shields.io/travis/ZELLMECHANIK-DRESDEN/DCKit.svg?label=tests_linux_macos
-   :target: https://travis-ci.com/ZELLMECHANIK-DRESDEN/DCKit
 .. |Coverage Status| image:: https://img.shields.io/codecov/c/github/ZELLMECHANIK-DRESDEN/DCKit/master.svg
    :target: https://codecov.io/gh/ZELLMECHANIK-DRESDEN/DCKit
