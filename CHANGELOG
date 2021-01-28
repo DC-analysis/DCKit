@@ -1,9 +1,10 @@
-0.12.1
+0.12.2
  - fix: in some cases, .tdms datasets could not be converted to
    .rtdc because of the data value of a combobox was not checked
    (ValueError: could not convert string to float: 'please select')
  - fix: joining datasets might have ended in an error because a
    message box was not setup properly
+0.12.1
  - ci: migrate to GitHub Actions
 0.12.0
  - setup: correct installation directory on Windows
