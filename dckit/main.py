@@ -423,13 +423,13 @@ class DCKit(QtWidgets.QMainWindow):
         pi = []
         for row in range(self.tableWidget.rowCount()):
             pi.append(self.get_path(row))
+        # finally, show the feedback dialog
+        msg = QtWidgets.QMessageBox()
         if pi:
             with ShowWaitCursor():
                 dclab.cli.join(path_out=po, paths_in=pi, metadata=metadata)
             # repack if checked
             self.repack(po)
-            # finally, show the feedback dialog
-            msg = QtWidgets.QMessageBox()
             msg.setIcon(QtWidgets.QMessageBox.Information)
             msg.setText("Successfully joined {} datasets!".format(len(pi)))
             msg.setWindowTitle("Success")

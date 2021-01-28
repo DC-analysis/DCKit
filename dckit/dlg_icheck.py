@@ -59,7 +59,6 @@ class IntegrityCheckDialog(QtWidgets.QDialog):
         editables = cls.editable_metadata[path]
         userdata = cls.user_metadata[path]
         defaults = cls.default_metadata
-
         metadata = {}
         # first fill up the default values (if applicable)
         for sec in editables:
@@ -260,6 +259,9 @@ class IntegrityCheckDialog(QtWidgets.QDialog):
                     if isinstance(value_a, bool):
                         # for yes/no combobox
                         value = value_a
+                    elif value_a is None:
+                        # User made no selection (text is "Please select")
+                        value = None
                     else:
                         # for text combobox
                         value = wid.currentText()

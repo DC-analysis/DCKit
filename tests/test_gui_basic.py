@@ -101,3 +101,41 @@ def test_task_tdms2rtdc(qtbot, monkeypatch):
     with dclab.new_dataset(paths_converted[0]) as ds:
         assert ds.config["setup"]["module composition"] == "Cell_Flow_2, Fluor"
     cleanup()
+
+
+def test_task_tdms2rtdc_bad_online_contour_no_absdiff(qtbot, monkeypatch):
+    """This tests for a regression
+
+    The [online_contour]: "no absdiff" keyword was somehow set to
+    "please select" instead of ignoring it if the user did not choose
+    anything.
+
+    ValueError: could not convert string to float: 'please select'
+    """
+    path = retrieve_data("rtdc_data_traces_video.zip")
+    # modify the data to not have the [online_contour]: "no absdiff" keyword
+    p_para = path.parent / "M1_para.ini"
+    ptext = p_para.read_text().split("\n")
+    # remove [online_contour]: "no absdiff"
+    for ii in range(len(ptext)):
+        if ptext[ii].strip() == "Diff_Method = 1":
+            ptext.pop(ii)
+            break
+    p_para.write_text("\n".join(ptext))
+    path_out = path.with_name("converted")
+    path_out.mkdir()
+    # Monkeypatch message box to always return OK
+    monkeypatch.setattr(QMessageBox, "exec_", lambda *args: QMessageBox.Ok)
+    monkeypatch.setattr(QFileDialog, "getExistingDirectory",
+                        lambda *args: str(path_out))
+    mw = DCKit(check_update=False)
+    qtbot.addWidget(mw)
+    mw.append_paths([path])
+    assert mw.tableWidget.rowCount() == 1
+    paths_converted, invalid, errors = mw.on_task_tdms2rtdc()
+    assert len(errors) == 0
+    assert len(invalid) == 0
+    assert len(paths_converted) == 1
+    with dclab.new_dataset(paths_converted[0]) as ds:
+        assert ds.config["setup"]["module composition"] == "Cell_Flow_2, Fluor"
+    cleanup()
