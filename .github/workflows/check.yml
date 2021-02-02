@@ -21,6 +21,8 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v2
       with:
@@ -53,12 +55,8 @@ jobs:
       run: |
         coverage report -m
         codecov
-    - name: Set version environment variable
-      run: |
-          python -m dckit --version
-          echo "CURRENT_BUILD_VERSION=$(python -m dckit --version)" >> $GITHUB_ENV
     - name: Create app and check if it runs (macOS)
       if: runner.os == 'macOS'
       working-directory: ./build-recipes
       run: |
-        bash ./macos_build_app.sh DCKit ${{ env.CURRENT_BUILD_VERSION }}
+        bash ./macos_build_app.sh DCKit $(python -m dckit --version)
