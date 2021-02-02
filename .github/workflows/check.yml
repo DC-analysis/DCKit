@@ -57,5 +57,5 @@ jobs:
       if: runner.os == 'macOS'
       working-directory: ./build-recipes
       run: |
-        echo ::set-env name=VERSION::"$(python -m dckit --version)"
-        bash ./macos_build_app.sh DCKit $VERSION
+        echo "CURRENT_BUILD_VERSION=$(python -m dckit --version)" >> $GITHUB_ENV
+        bash ./macos_build_app.sh DCKit ${{ env.CURRENT_BUILD_VERSION }}
