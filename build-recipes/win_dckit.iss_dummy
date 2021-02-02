@@ -9,7 +9,7 @@
 #define MyAppURL "https://zellmechanik.com"
 #define MyAppPlatform "win32"
 #define MyAppExeName "DCKit.exe"
-#define MyAppDir = SourcePath + "dist\ShapeOut2\"
+#define MyAppDir = SourcePath + "dist\DCKit\"
 
 [Setup]
 ; NOTE: The value of AppId uniquely identifies this application.
