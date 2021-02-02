@@ -57,4 +57,4 @@ jobs:
       if: runner.os == 'macOS'
       working-directory: ./build-recipes
       run: |
-        bash ./macos_build_app.sh DCKitApp $(git describe --tags)
+        bash ./macos_build_app.sh DCKit $(git describe --tags)

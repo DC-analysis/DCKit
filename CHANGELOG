@@ -1,3 +1,5 @@
+0.12.4
+ - build: overhauled build pipeline
 0.12.3
  - setup: bump dclab from 0.29.1 to 0.32.2 (OOM issues for large
    data files)
