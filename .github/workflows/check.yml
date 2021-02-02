@@ -53,9 +53,12 @@ jobs:
       run: |
         coverage report -m
         codecov
+    - name: Set version environment variable
+      run: |
+          python -m dckit --version
+          echo "CURRENT_BUILD_VERSION=$(python -m dckit --version)" >> $GITHUB_ENV
     - name: Create app and check if it runs (macOS)
       if: runner.os == 'macOS'
       working-directory: ./build-recipes
       run: |
-        export CURRENT_BUILD_VERSION=$(python -m dckit --version)
-        bash ./macos_build_app.sh DCKit ${CURRENT_BUILD_VERSION}
+        bash ./macos_build_app.sh DCKit ${{ env.CURRENT_BUILD_VERSION }}
