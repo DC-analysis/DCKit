@@ -134,7 +134,7 @@ class IntegrityCheckDialog(QtWidgets.QDialog):
                     wid.setEditable(True)  # allow user edits
                     wid.addItem("Please select", None)
                     for item in cue.cfg_choices:
-                        wid.addItem(item)
+                        wid.addItem(item, item)
                     wid.setCurrentText(self.get_metadata_value(sec, key))
                 if cue.category == "metadata missing":
                     self.gridLayout_missing.addWidget(wid, miss_count, 1)
