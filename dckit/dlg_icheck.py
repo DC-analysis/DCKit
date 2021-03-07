@@ -290,13 +290,22 @@ def check_dataset(path, metadata_dump, expand_section):
             ic = dclab.rtdc_dataset.check.IntegrityChecker(ds)
             cues = ic.check(expand_section=expand_section)
             # Also check for medium "other" and offer to edit it
-            if ds.config.get("setup", {}).get("medium", "") in ["other", ""]:
-                cues.append(dclab.rtdc_dataset.check.ICue(
-                    msg="User might want to edit 'medium'",
-                    level="alert",
-                    category="metadata missing",
-                    cfg_section="setup",
-                    cfg_key="medium"))
+            for cue in cues:
+                if (cue.category == "metadata missing"
+                    and cue.cfg_section == "setup"
+                        and cue.cfg_key == "medium"):
+                    # The cue already exists.
+                    break
+            else:
+                # The cue does not exist - add it.
+                medium = ds.config.get("setup", {}).get("medium", "")
+                if medium in ["other", ""]:
+                    cues.append(dclab.rtdc_dataset.check.ICue(
+                        msg="User might want to edit 'medium'",
+                        level="alert",
+                        category="metadata missing",
+                        cfg_section="setup",
+                        cfg_key="medium"))
         for ww in ws:
             cues.append(dclab.rtdc_dataset.check.ICue(
                 msg="{}: {}".format(ww.category.__name__, ww.message),
