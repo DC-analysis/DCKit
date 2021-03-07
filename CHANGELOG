@@ -3,6 +3,7 @@
    user-defined meta data
  - fix: in some cases there were two combo boxes for "medium"
    in the integrity check dialog
+ - setup: bump dclab from 0.32.2 to 0.32.5
  - build: overhauled build pipeline
 0.12.3
  - setup: bump dclab from 0.29.1 to 0.32.2 (OOM issues for large
