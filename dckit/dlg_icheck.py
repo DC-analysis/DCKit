@@ -122,19 +122,24 @@ class IntegrityCheckDialog(QtWidgets.QDialog):
                         wid.setValue(value)
                     elif dt is bool:
                         wid = QtWidgets.QComboBox(self)
-                        wid.addItem("Please select", None)
-                        wid.addItem("True", True)
-                        wid.addItem("False", False)
-                        idx = wid.findData(self.get_metadata_value(sec, key))
-                        wid.setCurrentIndex(idx)
+                        wid.addItem("Please select", "no selection")
+                        wid.addItem("True", "true")
+                        wid.addItem("False", "false")
+                        curdata = str(
+                            self.get_metadata_value(sec, key)).lower()
+                        idx = wid.findData(curdata)
+                        wid.setCurrentIndex(max(0, idx))
                     else:
                         raise ValueError("No action specified '{}'".format(dt))
                 else:
                     wid = QtWidgets.QComboBox(self)
                     wid.setEditable(True)  # allow user edits
-                    wid.addItem("Please select", None)
+                    # Set placeholder Text for lineEdit, since its editable.
+                    wid.lineEdit().setPlaceholderText("Please select")
                     for item in cue.cfg_choices:
-                        wid.addItem(item, item)
+                        # Text comboboxes have no "data", because they
+                        # are editable and the UI user cannot set any data.
+                        wid.addItem(item)
                     wid.setCurrentText(self.get_metadata_value(sec, key))
                 if cue.category == "metadata missing":
                     self.gridLayout_missing.addWidget(wid, miss_count, 1)
@@ -256,15 +261,24 @@ class IntegrityCheckDialog(QtWidgets.QDialog):
                 wid = self.user_widgets[sec][key]
                 if isinstance(wid, QtWidgets.QComboBox):
                     value_a = wid.currentData()
-                    if isinstance(value_a, bool):
-                        # for yes/no combobox
-                        value = value_a
-                    elif value_a is None:
-                        # User made no selection (text is "Please select")
-                        value = None
+                    if isinstance(value_a, str):
+                        # for boolean combobox
+                        if value_a == "true":
+                            value = True
+                        elif value_a == "false":
+                            value = False
+                        else:
+                            # "no selection" / "Please select"
+                            value = None
                     else:
-                        # for text combobox
-                        value = wid.currentText()
+                        # Text combobox (e.f. [setup]: medium)
+                        assert value_a is None, "sanity check"
+                        text_a = wid.currentText()
+                        if text_a:
+                            value = wid.currentText()
+                        else:
+                            # no text in combobox means no data
+                            value = None
                 elif isinstance(wid, (QtWidgets.QSpinBox,
                                       QtWidgets.QDoubleSpinBox)):
                     value = wid.value()
@@ -274,6 +288,10 @@ class IntegrityCheckDialog(QtWidgets.QDialog):
                     if sec not in self.metadata:
                         self.metadata[sec] = {}
                     self.metadata[sec][key] = value
+                else:
+                    # remove the value from the metadata
+                    if sec in self.metadata and key in self.metadata[sec]:
+                        self.metadata[sec].pop(key)
 
 
 @functools.lru_cache(maxsize=1000)
