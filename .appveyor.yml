@@ -35,13 +35,11 @@ install:
 build: off
 
 test_script:
-  - appveyor-retry pip install pytest
-  - appveyor-retry pip install coverage
-  - appveyor-retry pip install codecov
-  - appveyor-retry pip install flake8
+  - appveyor-retry pip install pytest pytest-qt
+  - appveyor-retry pip install coverage codecov flake8
   - flake8 dckit
   - flake8 tests
-  - coverage run --source=dckit ./setup.py test
+  - coverage run --source=dckit -m pytest tests
   - coverage report -m
   # Allow codecov to fail
   - codecov || exit 0

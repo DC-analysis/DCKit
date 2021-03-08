@@ -37,7 +37,7 @@ jobs:
       run: |
         # prerequisites
         python -m pip install --upgrade pip wheel
-        python -m pip install codecov coverage flake8 pytest
+        python -m pip install codecov coverage flake8 pytest pytest-qt
         # install dependencies
         pip install -e .
         # show installed packages
@@ -47,7 +47,7 @@ jobs:
         QT_DEBUG_PLUGINS=1 python -m dckit --version
     - name: Test with pytest
       run: |
-         coverage run --source=dckit setup.py test
+         coverage run --source=dckit -m pytest tests
     - name: Lint with flake8
       run: |
         flake8 .

@@ -38,7 +38,7 @@ Testing
 ::
 
     pip install -e .
-    python setup.py test
+    python -m pytest tests
 
 
 .. |DCKit| image:: https://raw.github.com/ZELLMECHANIK-DRESDEN/DCKit/master/docs/logo/dckit_h50.png
