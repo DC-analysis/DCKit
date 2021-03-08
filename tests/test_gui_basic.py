@@ -6,7 +6,7 @@ from PyQt5.QtWidgets import QFileDialog, QDialog, QMessageBox
 from dckit.main import DCKit
 
 
-from helper_methods import retrieve_data, cleanup
+from helper_methods import retrieve_data
 
 
 def test_simple(qtbot):
@@ -47,7 +47,6 @@ def test_task_compress(qtbot, monkeypatch):
             assert feat in ds0
             assert feat in ds
             assert np.all(ds[feat] == ds0[feat])
-    cleanup()
 
 
 def test_task_join(qtbot, monkeypatch):
@@ -65,7 +64,6 @@ def test_task_join(qtbot, monkeypatch):
     mw.on_task_join()
     with dclab.new_dataset(path_out) as ds, dclab.new_dataset(path) as ds0:
         assert len(ds) == 2*len(ds0)
-    cleanup()
 
 
 def test_task_metadata_sample(qtbot, monkeypatch):
@@ -79,7 +77,6 @@ def test_task_metadata_sample(qtbot, monkeypatch):
     mw.on_task_metadata()
     with dclab.new_dataset(path) as ds:
         assert ds.config["experiment"]["sample"] == "Peter Pan"
-    cleanup()
 
 
 def test_task_tdms2rtdc(qtbot, monkeypatch):
@@ -100,7 +97,6 @@ def test_task_tdms2rtdc(qtbot, monkeypatch):
     assert len(paths_converted) == 1
     with dclab.new_dataset(paths_converted[0]) as ds:
         assert ds.config["setup"]["module composition"] == "Cell_Flow_2, Fluor"
-    cleanup()
 
 
 def test_task_tdms2rtdc_bad_online_contour_no_absdiff(qtbot, monkeypatch):
@@ -138,4 +134,3 @@ def test_task_tdms2rtdc_bad_online_contour_no_absdiff(qtbot, monkeypatch):
     assert len(paths_converted) == 1
     with dclab.new_dataset(paths_converted[0]) as ds:
         assert ds.config["setup"]["module composition"] == "Cell_Flow_2, Fluor"
-    cleanup()

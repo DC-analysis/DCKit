@@ -1,13 +1,9 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-"""Test hdf5 file format"""
-from __future__ import print_function
-
+"""Test hdf5 logs history"""
 import dclab
 
 from dckit import history
 
-from helper_methods import retrieve_data, cleanup
+from helper_methods import retrieve_data
 
 
 def test_append_history():
@@ -22,7 +18,6 @@ def test_append_history():
 
     with dclab.new_dataset(h5path) as ds:
         assert "dckit-history" in ds.logs
-    cleanup()
 
 
 def test_multiple():
@@ -40,8 +35,6 @@ def test_multiple():
     assert hlist[0] == newlog
     assert hlist[1] == newlog2
 
-    cleanup()
-
 
 def test_unicode():
     h5path = retrieve_data("rtdc_data_hdf5_rtfdc.zip")
@@ -55,7 +48,6 @@ def test_unicode():
 
     with dclab.new_dataset(h5path) as ds:
         assert "dckit-history" in ds.logs
-    cleanup()
 
 
 if __name__ == "__main__":
