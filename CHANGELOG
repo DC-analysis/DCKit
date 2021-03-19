@@ -1,6 +1,6 @@
 0.12.5
  - fix: detect and automatically fix (if possible) wrong medium
-   written by Shape-In
+   written by Shape-In (#16)
 0.12.4
  - fix: regression (in a793ed) where "medium" was not saved in the
    user-defined meta data
