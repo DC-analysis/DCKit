@@ -24,7 +24,7 @@ setup(
     license="GPL v3",
     description=description,
     long_description=open('README.rst').read() if exists('README.rst') else '',
-    install_requires=["dclab[tdms]==0.32.5",  # pinned for triaging
+    install_requires=["dclab[tdms]==0.33.1",  # pinned for triaging
                       "h5py>=2.8.0",
                       "imageio[ffmpeg]>=2.8.0",
                       "nptdms>=0.27.0",

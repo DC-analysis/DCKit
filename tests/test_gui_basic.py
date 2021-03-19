@@ -1,7 +1,8 @@
 """basic tests"""
 import dclab
+import h5py
 import numpy as np
-from PyQt5.QtWidgets import QFileDialog, QDialog, QMessageBox
+from PyQt5.QtWidgets import QFileDialog, QDialog, QMessageBox, QInputDialog
 
 from dckit.main import DCKit
 
@@ -77,6 +78,33 @@ def test_task_metadata_sample(qtbot, monkeypatch):
     mw.on_task_metadata()
     with dclab.new_dataset(path) as ds:
         assert ds.config["experiment"]["sample"] == "Peter Pan"
+
+
+def test_task_split_trace(qtbot, monkeypatch):
+    path = retrieve_data("rtdc_data_hdf5_rtfdc.zip")
+    path_out = path.parent / "split"
+    path_out.mkdir()
+    # Monkeypatch
+    monkeypatch.setattr(QDialog, "exec_", lambda *args: QMessageBox.Ok)
+    monkeypatch.setattr(QMessageBox, "exec_", lambda *args: QMessageBox.Ok)
+    monkeypatch.setattr(QFileDialog, "getExistingDirectory",
+                        lambda *args: str(path_out))
+    monkeypatch.setattr(QInputDialog, "getInt",
+                        lambda *args: [3, QMessageBox.Ok])
+    # Initialize
+    mw = DCKit(check_update=False)
+    qtbot.addWidget(mw)
+    mw.append_paths([path])
+    paths_split, errors = mw.on_task_split()
+    assert not errors
+    assert len(paths_split) == 1
+
+    paths_out = sorted(path_out.glob("*.rtdc"))
+    assert len(paths_out) == 3
+
+    for pp, size in zip(paths_out, [3, 3, 1]):
+        with h5py.File(pp) as h5:
+            assert len(h5["events"]["trace"]["fl1_raw"]) == size, pp
 
 
 def test_task_tdms2rtdc(qtbot, monkeypatch):
