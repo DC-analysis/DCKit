@@ -1,12 +1,155 @@
 import pathlib
 
 import dclab
+import h5py
+import pytest
 from PyQt5.QtWidgets import QFileDialog, QMessageBox
 
 from dckit.main import DCKit
 from dckit.dlg_icheck import IntegrityCheckDialog
+from dckit.meta_tool import MetadataEditedWarning
 
 from helper_methods import retrieve_data
+
+
+def test_integrity_shapein_issue3(qtbot, monkeypatch):
+    """Shape-In did not store the medium correctly
+
+    https://github.com/ZELLMECHANIK-DRESDEN/ShapeIn_Issues/issues/3
+
+    We don't do anything in this test. We just make sure that
+    CellCarrierB is set automatically.
+    """
+    h5path = retrieve_data("rtdc_data_hdf5_rtfdc.zip")
+    with h5py.File(h5path, "a") as h5:
+        h5.attrs["setup:software version"] = "2.2.2.0"
+        h5.attrs["setup:medium"] = "CellCarrierB"
+    h5path_m = h5path.with_name("M001_data.rtdc")
+    h5path.rename(h5path_m)
+    # Create SoftwareSettings.ini
+    sinipath = h5path_m.with_name("M001_SoftwareSettings.ini")
+    sinipath.write_text("Buffer_Medium_ID=0\nBuffer_Medium=CellCarrierB")
+    # Proceed with loading
+    path_out = pathlib.Path(h5path_m).parent
+    # Monkeypatch message box to always return OK
+    monkeypatch.setattr(QMessageBox, "exec_", lambda *args: QMessageBox.Ok)
+    monkeypatch.setattr(QFileDialog, "getExistingDirectory",
+                        lambda *args: str(path_out))
+    mw = DCKit(check_update=False)
+    qtbot.addWidget(mw)
+    mw.append_paths([h5path_m])
+    assert mw.tableWidget.rowCount() == 1, "sanity check"
+    # Now edit the medium (create dialog manually)
+    with pytest.warns(MetadataEditedWarning):
+        dlg = IntegrityCheckDialog(mw, h5path_m)
+    assert dlg.get_metadata_value("setup", "medium") == "CellCarrier"
+    assert "setup" in dlg.user_widgets, "setup section must be there"
+    assert "medium" in dlg.user_widgets["setup"], "medium must be there"
+    # finish the dialog
+    dlg.done(True)
+
+    # 1. Get metadata from dict (just to be sure)
+    dlg2 = IntegrityCheckDialog(mw, h5path_m)
+    assert dlg2.get_metadata_value("setup", "medium") == "CellCarrier"
+
+    # 2. Make sure the combobox is set correctly (just to be sure)
+    wid2 = dlg2.user_widgets["setup"]["medium"]
+    assert wid2.currentText() == "CellCarrier"
+
+    # 3. Compress and check (just to be sure)
+    paths_compressed, invalid = mw.on_task_compress()
+    assert len(invalid) == 0
+    assert len(paths_compressed) == 1
+    with dclab.new_dataset(paths_compressed[0]) as ds:
+        assert ds.config["setup"]["medium"] == "CellCarrier"
+
+
+def test_integrity_shapein_issue3_control(qtbot, monkeypatch):
+    """Shape-In did not store the medium correctly
+
+    https://github.com/ZELLMECHANIK-DRESDEN/ShapeIn_Issues/issues/3
+
+    With a functional Shape-In version, DCKit should not attempt anything.
+    """
+    h5path = retrieve_data("rtdc_data_hdf5_rtfdc.zip")
+    with h5py.File(h5path, "a") as h5:
+        h5.attrs["setup:software version"] = "2.2.3.0"  # [sic]
+        h5.attrs["setup:medium"] = "CellCarrierB"
+    h5path_m = h5path.with_name("M001_data.rtdc")
+    # Create SoftwareSettings.ini (should not have any effect, because
+    # the Shape-In version is expected to be safe.
+    sinipath = h5path_m.with_name("M001_SoftwareSettings.ini")
+    sinipath.write_text("Buffer_Medium_ID=0\nBuffer_Medium=CellCarrierB")
+    h5path.rename(h5path_m)
+    # Proceed with loading
+    path_out = pathlib.Path(h5path_m).parent
+    # Monkeypatch message box to always return OK
+    monkeypatch.setattr(QMessageBox, "exec_", lambda *args: QMessageBox.Ok)
+    monkeypatch.setattr(QFileDialog, "getExistingDirectory",
+                        lambda *args: str(path_out))
+    mw = DCKit(check_update=False)
+    qtbot.addWidget(mw)
+    mw.append_paths([h5path_m])
+    assert mw.tableWidget.rowCount() == 1, "sanity check"
+    # Now edit the medium (create dialog manually)
+    dlg = IntegrityCheckDialog(mw, h5path_m)
+    assert dlg.get_metadata_value("setup", "medium") == "CellCarrierB"
+    assert "setup" not in dlg.user_widgets, "setup section must not be there"
+    # finish the dialog
+    dlg.done(True)
+
+    # 1. Get metadata from dict (just to be sure)
+    dlg2 = IntegrityCheckDialog(mw, h5path_m)
+    assert dlg2.get_metadata_value("setup", "medium") == "CellCarrierB"
+
+    # 2. Compress and check (just to be sure)
+    paths_compressed, invalid = mw.on_task_compress()
+    assert len(invalid) == 0
+    assert len(paths_compressed) == 1
+    with dclab.new_dataset(paths_compressed[0]) as ds:
+        assert ds.config["setup"]["medium"] == "CellCarrierB"
+
+
+def test_integrity_shapein_issue3_control_2(qtbot, monkeypatch):
+    """Shape-In did not store the medium correctly
+
+    https://github.com/ZELLMECHANIK-DRESDEN/ShapeIn_Issues/issues/3
+
+    This is a control test without SoftwareSettings.ini
+    """
+    h5path = retrieve_data("rtdc_data_hdf5_rtfdc.zip")
+    with h5py.File(h5path, "a") as h5:
+        h5.attrs["setup:software version"] = "2.2.2.0"
+        h5.attrs["setup:medium"] = "CellCarrierB"
+    h5path_m = h5path.with_name("M001_data.rtdc")
+    h5path.rename(h5path_m)
+    # Proceed with loading
+    path_out = pathlib.Path(h5path_m).parent
+    # Monkeypatch message box to always return OK
+    monkeypatch.setattr(QMessageBox, "exec_", lambda *args: QMessageBox.Ok)
+    monkeypatch.setattr(QFileDialog, "getExistingDirectory",
+                        lambda *args: str(path_out))
+    mw = DCKit(check_update=False)
+    qtbot.addWidget(mw)
+    mw.append_paths([h5path_m])
+    assert mw.tableWidget.rowCount() == 1, "sanity check"
+    # Now edit the medium (create dialog manually)
+    dlg = IntegrityCheckDialog(mw, h5path_m)
+    assert dlg.get_metadata_value("setup", "medium") == "CellCarrierB"
+    assert "setup" in dlg.user_widgets, "setup section must be there"
+    # finish the dialog
+    dlg.done(True)
+
+    # 1. Get metadata from dict (just to be sure)
+    dlg2 = IntegrityCheckDialog(mw, h5path_m)
+    assert dlg2.get_metadata_value("setup", "medium") == "CellCarrierB"
+
+    # 2. Compress and check (just to be sure)
+    paths_compressed, invalid = mw.on_task_compress()
+    assert len(invalid) == 0
+    assert len(paths_compressed) == 1
+    with dclab.new_dataset(paths_compressed[0]) as ds:
+        assert ds.config["setup"]["medium"] == "CellCarrierB"
 
 
 def test_integrity_with_medium(qtbot, monkeypatch):

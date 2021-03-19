@@ -10,6 +10,10 @@ import h5py
 import nptdms
 
 
+class MetadataEditedWarning(UserWarning):
+    pass
+
+
 def find_data(path):
     """Find tdms and rtdc data files in a directory"""
     path = pathlib.Path(path)
@@ -78,7 +82,7 @@ def get_event_count(path):
         ec = get_event_count_quick(path)
     except BaseException:
         config = get_rtdc_config(path)
-        config["experiment"]["event count"]
+        ec = config["experiment"]["event count"]
     return ec
 
 
@@ -187,6 +191,21 @@ def get_rtdc_meta(path):
     with dclab.new_dataset(path) as ds:
         config = ds.config.copy()
         logs = copy.deepcopy(dict(ds.logs))
+        ic = dclab.rtdc_dataset.check.IntegrityChecker(ds)
+        if len(ic.check_shapein_issue3_bad_medium()):
+            # https://github.com/ZELLMECHANIK-DRESDEN/ShapeIn_Issues/issues/3
+            # Try to automatically determine the medium.
+            swini = path.with_name(
+                path.name.split("_")[0] + "_SoftwareSettings.ini")
+            if swini.exists():
+                lines = [ll.strip() for ll in swini.read_text().split("\n")]
+                if ("Buffer_Medium_ID=0" in lines
+                        and "Buffer_Medium=CellCarrierB" in lines):
+                    config["setup"]["medium"] = "CellCarrier"
+                    warnings.warn("Automatically set medium to 'CellCarrier', "
+                                  "because of ID mismatch in '{}' (Shape-In "
+                                  "issue #3).".format(swini),
+                                  MetadataEditedWarning)
     return config, logs
 
 

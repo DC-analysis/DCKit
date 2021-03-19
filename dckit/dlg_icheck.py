@@ -307,9 +307,14 @@ def check_dataset(path, metadata_dump, expand_section):
             ds.config.update(metadata)
             ic = dclab.rtdc_dataset.check.IntegrityChecker(ds)
             cues = ic.check(expand_section=expand_section)
+
             # Also check for medium "other" and offer to edit it
             for cue in cues:
-                if (cue.category == "metadata missing"
+                if cue.identifier == "Shape-In issue #3":
+                    warnings.warn("DCKit attempted to fix '[setup]: medium'! "
+                                  "(Shape-In issue #3)",
+                                  meta_tool.MetadataEditedWarning)
+                if (cue.category in ["metadata missing", "metadata wrong"]
                     and cue.cfg_section == "setup"
                         and cue.cfg_key == "medium"):
                     # The cue already exists.
