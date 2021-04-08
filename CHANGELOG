@@ -1,6 +1,7 @@
 0.12.7
  - setup: bump dclab from 0.33.1 to 0.33.3 (some datasets with
    unknown features could not be opened)
+ - fix: add titles to dialog windows
 0.12.6
  - build: fix pyinstaller builds
 0.12.5

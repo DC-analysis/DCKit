@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Dialog</string>
+   <string>Integrity check</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
@@ -260,7 +260,8 @@
         <string>Set as Global Default</string>
        </property>
        <property name="icon">
-        <iconset theme="applications-internet"/>
+        <iconset theme="applications-internet">
+         <normaloff>.</normaloff>.</iconset>
        </property>
        <property name="toolButtonStyle">
         <enum>Qt::ToolButtonTextBesideIcon</enum>
