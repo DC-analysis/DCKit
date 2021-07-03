@@ -7,7 +7,9 @@ import traceback
 import warnings
 
 import dclab
-from dclab.cli import get_job_info, repack
+from dclab.cli import repack
+from dclab.cli import common
+
 import h5py
 import imageio
 import imageio_ffmpeg
@@ -702,7 +704,7 @@ class DCKit(QtWidgets.QMainWindow):
 
 
 def append_execution_log(path, task_dict):
-    info = get_job_info()
+    info = common.get_job_info()
     info["libraries"]["dckit"] = __version__
     info["task"] = task_dict
     history.append_history(path, info)
@@ -794,7 +796,7 @@ def get_valid_filename(value):
 
 
 def sha256(path):
-    return dclab.util.hashfile(path, hasher_class=hashlib.sha256)
+    return dclab.util.hashfile(path, constructor=hashlib.sha256)
 
 
 # Make Ctr+C close the app

@@ -1,5 +1,7 @@
 0.12.8
  - ref: cleanup - call overloaded processEvents
+ - ref: get rid of deprecation warnings
+ - build: bump dclab from 0.33.3 to 0.34.4 (use temporary files)
 0.12.7
  - setup: bump dclab from 0.33.1 to 0.33.3 (some datasets with
    unknown features could not be opened)

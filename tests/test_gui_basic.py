@@ -103,7 +103,7 @@ def test_task_split_trace(qtbot, monkeypatch):
     assert len(paths_out) == 3
 
     for pp, size in zip(paths_out, [3, 3, 1]):
-        with h5py.File(pp) as h5:
+        with h5py.File(pp, mode="r") as h5:
             assert len(h5["events"]["trace"]["fl1_raw"]) == size, pp
 
 
