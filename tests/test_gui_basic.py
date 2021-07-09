@@ -54,7 +54,7 @@ def test_task_join(qtbot, monkeypatch):
     path = retrieve_data("rtdc_data_hdf5_rtfdc.zip")
     path_out = path.with_name("out.rtdc")
     # Monkeypatch
-    monkeypatch.setattr(QDialog, "exec_", lambda *args: QMessageBox.Ok)
+    monkeypatch.setattr(QDialog, "exec_", lambda *args: QDialog.Accepted)
     monkeypatch.setattr(QMessageBox, "exec_", lambda *args: QMessageBox.Ok)
     monkeypatch.setattr(QFileDialog, "getSaveFileName",
                         lambda *args: (str(path_out), None))

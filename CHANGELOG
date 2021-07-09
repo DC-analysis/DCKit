@@ -1,3 +1,5 @@
+0.12.9
+ - fix: cancelling join measurements did not work (#14)
 0.12.8
  - ref: cleanup - call overloaded processEvents
  - ref: get rid of deprecation warnings

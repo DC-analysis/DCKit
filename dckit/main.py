@@ -414,34 +414,38 @@ class DCKit(QtWidgets.QMainWindow):
         path_ui = pkg_resources.resource_filename("dckit", "dlg_join.ui")
         uic.loadUi(path_ui, dlg)
         dlg.lineEdit.setText(self.get_metadata(0)["experiment"]["sample"])
-        dlg.exec_()
-        sample = dlg.lineEdit.text()
-        metadata = {"experiment": {"run index": 1,
-                                   "sample": sample}}
-        po, _ = QtWidgets.QFileDialog.getSaveFileName(self, 'Output path', '',
-                                                      'RT-DC files (*.rtdc)')
-        po = pathlib.Path(po)
-        if not po.suffix == ".rtdc":
-            po = po.parent / (po.name + ".rtdc")
-        pi = []
-        for row in range(self.tableWidget.rowCount()):
-            pi.append(self.get_path(row))
-        # finally, show the feedback dialog
-        msg = QtWidgets.QMessageBox()
-        if pi:
-            with ShowWaitCursor():
-                dclab.cli.join(path_out=po, paths_in=pi, metadata=metadata)
-            # repack if checked
-            self.repack(po)
-            msg.setIcon(QtWidgets.QMessageBox.Information)
-            msg.setText("Successfully joined {} datasets!".format(len(pi)))
-            msg.setWindowTitle("Success")
-            msg.setDetailedText("\n".join([str(pp) for pp in pi]))
-        else:
-            msg.setIcon(QtWidgets.QMessageBox.Warning)
-            msg.setText("Nothing to do!")
-            msg.setWindowTitle("Warning")
-        msg.exec_()
+        ret = dlg.exec_()
+        if ret == QtWidgets.QDialog.Accepted:
+            sample = dlg.lineEdit.text()
+            metadata = {"experiment": {"run index": 1,
+                                       "sample": sample}}
+            po, _ = QtWidgets.QFileDialog.getSaveFileName(
+                self, 'Output path', '', 'RT-DC files (*.rtdc)')
+            if po:
+                po = pathlib.Path(po)
+                if not po.suffix == ".rtdc":
+                    po = po.parent / (po.name + ".rtdc")
+                pi = []
+                for row in range(self.tableWidget.rowCount()):
+                    pi.append(self.get_path(row))
+                # finally, show the feedback dialog
+                msg = QtWidgets.QMessageBox()
+                if pi:
+                    with ShowWaitCursor():
+                        dclab.cli.join(path_out=po,
+                                       paths_in=pi,
+                                       metadata=metadata)
+                    # repack if checked
+                    self.repack(po)
+                    msg.setIcon(QtWidgets.QMessageBox.Information)
+                    msg.setText(f"Successfully joined {len(pi)} datasets!")
+                    msg.setWindowTitle("Success")
+                    msg.setDetailedText("\n".join([str(pp) for pp in pi]))
+                else:
+                    msg.setIcon(QtWidgets.QMessageBox.Warning)
+                    msg.setText("Nothing to do!")
+                    msg.setWindowTitle("Warning")
+                msg.exec_()
 
     @QtCore.pyqtSlot()
     def on_task_metadata(self):
