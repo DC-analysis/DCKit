@@ -43,6 +43,35 @@ def test_task_compress(qtbot, monkeypatch):
     assert len(invalid) == 0
     with dclab.new_dataset(pouts[0]) as ds, dclab.new_dataset(path) as ds0:
         assert len(ds) == len(ds0)
+        assert len(ds.logs) != 0
+        scf = list(set(ds.features_scalar + ds0.features_scalar))
+        for feat in scf:
+            assert feat in ds0
+            assert feat in ds
+            assert np.all(ds[feat] == ds0[feat])
+
+
+def test_task_compress_and_repack_strip_issue19(qtbot, monkeypatch):
+    """Same test as above, only tests whether repack and strip logs works"""
+    path = retrieve_data("rtdc_data_hdf5_rtfdc.zip")
+    path_out = path.with_name("compressed")
+    path_out.mkdir()
+    # Monkeypatch
+    monkeypatch.setattr(QDialog, "exec_", lambda *args: QMessageBox.Ok)
+    monkeypatch.setattr(QMessageBox, "exec_", lambda *args: QMessageBox.Ok)
+    monkeypatch.setattr(QFileDialog, "getExistingDirectory",
+                        lambda *args: str(path_out))
+
+    mw = DCKit(check_update=False)
+    qtbot.addWidget(mw)
+    mw.append_paths([path])
+    mw.checkBox_repack.setChecked(True)
+    pouts, invalid = mw.on_task_compress()
+    assert len(pouts) == 1
+    assert len(invalid) == 0
+    with dclab.new_dataset(pouts[0]) as ds, dclab.new_dataset(path) as ds0:
+        assert len(ds) == len(ds0)
+        assert len(ds.logs) == 0
         scf = list(set(ds.features_scalar + ds0.features_scalar))
         for feat in scf:
             assert feat in ds0

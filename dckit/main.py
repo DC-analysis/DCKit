@@ -659,16 +659,18 @@ class DCKit(QtWidgets.QMainWindow):
             return
 
         path = pathlib.Path(path)
-        path_temp = path.with_name("." + path.name + "_repack.temp")
+        # rename the original file
+        path_orig = path.with_name(path.stem + "_original.rtdc")
+        path.rename(path_orig)
         try:
-            repack(path, path_temp, strip_logs=True)
+            repack(path_in=path_orig, path_out=path, strip_logs=True)
         except BaseException:
-            if path_temp.exists():
-                path_temp.unlink()
+            path_orig.unlink()
+            if path.exists():
+                path.unlink()
             raise
         else:
-            path.unlink()
-            path_temp.rename(path)
+            path_orig.unlink()
 
     @show_wait_cursor
     def write_metadata(self, path, metadata):

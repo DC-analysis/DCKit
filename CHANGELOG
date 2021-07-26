@@ -1,3 +1,6 @@
+0.12.10
+ -  
+   not work (#19)
 0.12.9
  - fix: cancelling join measurements did not work (#14)
  - setup: bump dclab from 0.34.4 to 0.34.5
