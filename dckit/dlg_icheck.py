@@ -1,12 +1,15 @@
 import copy
 import json
 import functools
+import numbers
+
 import pkg_resources
 import warnings
 
 import dclab
-from PyQt5 import uic, QtWidgets
 from dclab.features.emodulus.viscosity import KNOWN_MEDIA
+import numpy as np
+from PyQt5 import uic, QtWidgets
 
 from . import meta_tool
 from .wait_cursor import show_wait_cursor
@@ -103,24 +106,25 @@ class IntegrityCheckDialog(QtWidgets.QDialog):
                     self.gridLayout_wrong.addWidget(lab, wrong_count, 0)
                 # control
                 if cue.cfg_choices is None:
-                    dt = dclab.dfn.config_types[cue.cfg_section][cue.cfg_key]
+                    dt = dclab.dfn.get_config_value_type(cue.cfg_section,
+                                                         cue.cfg_key)
                     if dt is str:
                         wid = QtWidgets.QLineEdit(self)
                         wid.setText(self.get_metadata_value(sec, key) or "")
-                    elif dt is float:
+                    elif dt == numbers.Integral:
+                        wid = QtWidgets.QSpinBox(self)
+                        wid.setMinimum(-1337)
+                        wid.setMaximum(999999999)
+                        value = self.get_metadata_value(sec, key) or -1337
+                        wid.setValue(value)
+                    elif dt == numbers.Number:
                         wid = QtWidgets.QDoubleSpinBox(self)
                         wid.setMinimum(-1337)
                         wid.setMaximum(999999999)
                         wid.setDecimals(5)
                         value = self.get_metadata_value(sec, key) or -1337
                         wid.setValue(value)
-                    elif dt is int:
-                        wid = QtWidgets.QSpinBox(self)
-                        wid.setMinimum(-1337)
-                        wid.setMaximum(999999999)
-                        value = self.get_metadata_value(sec, key) or -1337
-                        wid.setValue(value)
-                    elif dt is bool:
+                    elif dt == (bool, np.bool_):
                         wid = QtWidgets.QComboBox(self)
                         wid.addItem("Please select", "no selection")
                         wid.addItem("True", "true")

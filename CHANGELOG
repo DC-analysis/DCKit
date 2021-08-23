@@ -1,3 +1,6 @@
+0.12.11
+ - ref: dataset checks with 0.35.0
+ - setup: bump dclab from 0.34.5 to 0.35.0
 0.12.10
  - fix: compressing datasets with option "repack and strip logs" did
    not work (#19)
