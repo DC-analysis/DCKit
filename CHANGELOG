@@ -1,3 +1,5 @@
+0.12.12
+ - setup: bump dclab from 0.35.3 to 0.35.6
 0.12.11
  - ref: dataset checks with dclab 0.35.0
  - setup: bump dclab from 0.34.5 to 0.35.3
