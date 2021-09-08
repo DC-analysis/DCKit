@@ -1,4 +1,6 @@
 0.12.12
+ - fix: some warnings in integrity check dialog were not properly
+   displayed because the messages were not html-escaped
  - setup: bump dclab from 0.35.3 to 0.35.6
 0.12.11
  - ref: dataset checks with dclab 0.35.0

@@ -1,4 +1,5 @@
 import copy
+import html
 import json
 import functools
 import numbers
@@ -171,8 +172,9 @@ class IntegrityCheckDialog(QtWidgets.QDialog):
                   "alert": "#7A6500",
                   "violation": "#A50000"}
         for cue in cues2:
-            text += "<div style='color:{}'>{}</div>".format(colors[cue.level],
-                                                            cue.msg)
+            text += f"<div style='color:{colors[cue.level]}'>" \
+                    + f"{html.escape(cue.msg)}</div>"
+
         self.textEdit.setText(text)
 
         # Logs
