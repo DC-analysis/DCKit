@@ -1,3 +1,7 @@
+0.12.13
+ - fix: allow to edit medium when Shape-In 2.3.0.0 wrote wrong value due
+   to https://github.com/ZELLMECHANIK-DRESDEN/ShapeIn_Issues/issues/3
+ - setup: bump dclab from 0.35.6 to 0.35.7
 0.12.12
  - fix: some warnings in integrity check dialog were not properly
    displayed because the messages were not html-escaped
