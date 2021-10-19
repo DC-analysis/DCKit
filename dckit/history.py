@@ -13,7 +13,7 @@ def append_history(path, hdict):
     ----------
     path: str or pathlib.Path
         Path to .rtdc file
-    hdict_element: dict
+    hdict: dict
         History element (not the full history)
     """
     path = pathlib.Path(path)
@@ -80,9 +80,5 @@ def write_history(path, hlist):
                       default=default_json_converter,
                       ).split("\n")
     # write dump as log
-    with dclab.rtdc_dataset.write(
-            path_or_h5file=path,
-            logs={"dckit-history": hlog},
-            mode="append",
-            compression="gzip"):
-        pass
+    with dclab.RTDCWriter(path) as hw:
+        hw.store_log("dckit-history", hlog)

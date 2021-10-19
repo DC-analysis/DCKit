@@ -1,3 +1,5 @@
+0.12.14
+ - setup: bump dclab from 0.35.7 to 0.36.1 (improved writing speed)
 0.12.13
  - fix: allow to edit medium when Shape-In 2.3.0.0 wrote wrong value due
    to https://github.com/ZELLMECHANIK-DRESDEN/ShapeIn_Issues/issues/3
