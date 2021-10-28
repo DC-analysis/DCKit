@@ -1,3 +1,6 @@
+0.12.15
+ - setup: bump dclab from 0.36.1 to 0.37.2 (improved speed for
+   condensing datasets)
 0.12.14
  - setup: bump dclab from 0.35.7 to 0.36.1 (improved writing speed)
 0.12.13
