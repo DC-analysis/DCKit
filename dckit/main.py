@@ -435,8 +435,11 @@ class DCKit(QtWidgets.QMainWindow):
                         dclab.cli.join(path_out=po,
                                        paths_in=pi,
                                        metadata=metadata)
+                    # write any warnings to separate log files
+                    extract_warning_logs(po)
                     # repack if checked
                     self.repack(po)
+                    # display message
                     msg.setIcon(QtWidgets.QMessageBox.Information)
                     msg.setText(f"Successfully joined {len(pi)} datasets!")
                     msg.setWindowTitle("Success")
@@ -531,7 +534,7 @@ class DCKit(QtWidgets.QMainWindow):
                                 verbose=False)
                         except BaseException:
                             errors.append([path, traceback.format_exc()])
-                            # remove erronuous files
+                            # remove erroneous files
                             for pp in pout.glob(path.stem+"_*"):
                                 pp.unlink()
                         else:
