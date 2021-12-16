@@ -96,7 +96,7 @@ class IntegrityCheckDialog(QtWidgets.QDialog):
                 if sec == "setup" and key == "medium":
                     cue.cfg_choices = KNOWN_MEDIA + ["other"]
                 lab = QtWidgets.QLabel("[{}]: {}".format(sec, key))
-                lab.setToolTip(dclab.dfn.config_descr[sec][key])
+                lab.setToolTip(dclab.dfn.get_config_value_descr(sec, key))
                 if cue.level == "violation":
                     lab.setStyleSheet('color: #A50000')
                 else:
