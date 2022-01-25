@@ -180,6 +180,7 @@ class DCKit(QtWidgets.QMainWindow):
         path = self.pathlist[path_index]
         return path
 
+    @QtCore.pyqtSlot()
     def on_action_about(self):
         about_text = "DCKit is a tool for managing RT-DC data.\n\n" \
             + "Author: Paul Müller\n" \
@@ -232,6 +233,7 @@ class DCKit(QtWidgets.QMainWindow):
         msg.setText(text)
         msg.exec_()
 
+    @QtCore.pyqtSlot()
     def on_action_software(self):
         libs = [dclab,
                 imageio,
@@ -252,6 +254,7 @@ class DCKit(QtWidgets.QMainWindow):
                                           "Software",
                                           sw_text)
 
+    @QtCore.pyqtSlot()
     def on_add_folder(self):
         """Search folder for RT-DC data and add to table"""
         # show a dialog for selecting folder
@@ -265,6 +268,7 @@ class DCKit(QtWidgets.QMainWindow):
         # add to list
         self.append_paths(pathlist)
 
+    @QtCore.pyqtSlot()
     def on_add_measurements(self):
         """Select .tdms and .rtdc files and add to table"""
         # show a dialog for adding multiple single files (.tdms and .rtdc)
@@ -277,6 +281,7 @@ class DCKit(QtWidgets.QMainWindow):
             # add to list
             self.append_paths(pathlist)
 
+    @QtCore.pyqtSlot()
     def on_clear_measurements(self):
         """Clear the table"""
         for _ in range(len(self.pathlist)):
@@ -284,6 +289,7 @@ class DCKit(QtWidgets.QMainWindow):
         self.pathlist.clear()
         self.integrity_buttons.clear()
 
+    @QtCore.pyqtSlot()
     def on_repack(self):
         """The checkbox is clicked (no repacking is performed)"""
         if self.checkBox_repack.isChecked():
@@ -327,6 +333,7 @@ class DCKit(QtWidgets.QMainWindow):
                   "passed": "#007A04"}
         button.setStyleSheet("color: {}".format(colors[dlg.state]))
 
+    @QtCore.pyqtSlot()
     def on_table_text_changed(self):
         """Reset sample name if set to empty string"""
         curit = self.tableWidget.currentItem()
