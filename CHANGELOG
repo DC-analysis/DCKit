@@ -1,4 +1,5 @@
 0.12.18
+ - ref: cleanup main.py; there is not much more that can be done (#13)
  - setup: bump dclab from 0.39.5 to 0.39.9 (#21)
  - setup: bump numpy to 1.21
 0.12.17
