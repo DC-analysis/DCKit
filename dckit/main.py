@@ -17,9 +17,10 @@ import nptdms
 import numpy
 from PyQt5 import uic, QtCore, QtWidgets
 
-from . import history
 from . import dlg_icheck
 from .dlg_icheck import IntegrityCheckDialog
+from . import history
+from . import message_box
 from . import meta_tool
 from . import update
 from .wait_cursor import show_wait_cursor, ShowWaitCursor
@@ -375,28 +376,20 @@ class DCKit(QtWidgets.QMainWindow):
                         invalid.append(path)
         else:
             return
+
         if invalid:
-            # Show an error dialog for the tdms files
-            msg = QtWidgets.QMessageBox()
-            msg.setIcon(QtWidgets.QMessageBox.Critical)
-            msg.setText("No .tdms files supported as input!")
-            msg.setWindowTitle("Unsupported action")
-            msg.setDetailedText("Affected files are:\n"
-                                + "\n\n".join([str(p) for p in invalid]))
-            msg.exec_()
+            message_box.ignored(
+                message=f"{len(invalid)} files were ignored (no .rtdc data).",
+                details="Affected files are:\n"
+                        + "\n\n".join([str(p) for p in invalid]))
 
         # finally, show the feedback dialog
-        msg = QtWidgets.QMessageBox()
         if len(details):
-            msg.setIcon(QtWidgets.QMessageBox.Information)
-            msg.setText("Successfully compressed .rtdc files!")
-            msg.setWindowTitle("Success")
-            msg.setDetailedText("\n\n".join(details))
-        else:
-            msg.setIcon(QtWidgets.QMessageBox.Warning)
-            msg.setText("Nothing to do!")
-            msg.setWindowTitle("Warning")
-        msg.exec_()
+            message_box.success(
+                message=f"Successfully compressed {len(details)} .rtdc files!",
+                details="\n\n".join(details))
+        elif not invalid:
+            message_box.nothing_todo()
         return paths_compressed, invalid
 
     @show_wait_cursor
@@ -474,35 +467,27 @@ class DCKit(QtWidgets.QMainWindow):
                             IntegrityCheckDialog.user_metadata.pop(path)
                     dlg_icheck.check_dataset.cache_clear()
         if invalid:
-            # Show an error dialog for the tdms files
-            msg = QtWidgets.QMessageBox()
-            msg.setIcon(QtWidgets.QMessageBox.Critical)
-            msg.setText("Updating .tdms metadata not supported!")
-            msg.setInformativeText(
-                "Changing the metadata for .tdms files is "
-                + "not supported! Please convert the files to "
-                + "the .rtdc file format.")
-            msg.setWindowTitle("Unsupported action")
-            msg.setDetailedText("Affected files are:\n"
-                                + "\n\n".join([str(p) for p in invalid]))
-            msg.exec_()
+            # show message regarding .tdms data
+            message_box.ignored(
+                message=f"{len(invalid)} files were ignored (no .rtdc data).",
+                info="Changing the metadata for .tdms files is "
+                     + "not supported! Please convert the files to "
+                     + "the .rtdc file format.",
+                details="Affected files are:\n"
+                        + "\n\n".join([str(p) for p in invalid]))
 
         # finally, show the feedback dialog
-        msg = QtWidgets.QMessageBox()
         if len(details):
-            msg.setIcon(QtWidgets.QMessageBox.Information)
-            msg.setText("Successfully updated metadata!")
-            msg.setWindowTitle("Success")
-            msg.setDetailedText("\n\n".join(details))
-        else:
-            msg.setIcon(QtWidgets.QMessageBox.Warning)
-            msg.setText("Nothing to update! You did not edit any metadata in "
+            message_box.success(
+                message=f"Updated the metadata of {len(details)} files!",
+                details="\n\n".join(details))
+        elif not invalid:
+            message_box.nothing_todo(
+                message="Nothing to update! You did not edit any metadata in "
                         + "the 'Sample' column or via the integrity check or "
                         + "you are attempting to update .tdms data (which "
                         + "is not supported - use 'Convert .tdms to .rtdc' "
                         + "instead).")
-            msg.setWindowTitle("Warning")
-        msg.exec_()
 
     @QtCore.pyqtSlot()
     def on_task_split(self):
@@ -549,27 +534,18 @@ class DCKit(QtWidgets.QMainWindow):
                             paths_split.append(path)
         if errors:
             # Show an error dialog for the files that could not be converted
-            msg = QtWidgets.QMessageBox()
-            msg.setIcon(QtWidgets.QMessageBox.Critical)
-            msg.setText("Errors encountered while splitting!")
-            msg.setWindowTitle("Unexpected Error")
-            msg.setDetailedText(
-                "Affected files are:\n\n"
-                + "\n\n".join(["{}:\n{}".format(*e) for e in errors]))
-            msg.exec_()
+            message_box.error(
+                message="Errors encountered while splitting!",
+                details="Affected files are:\n\n"
+                        + "\n\n".join(["{}:\n{}".format(*e) for e in errors]))
 
         # finally, show the feedback dialog
-        msg = QtWidgets.QMessageBox()
         if len(details):
-            msg.setIcon(QtWidgets.QMessageBox.Information)
-            msg.setText("Splitting successful!")
-            msg.setWindowTitle("Success")
-            msg.setDetailedText("\n\n".join(details))
-        else:
-            msg.setIcon(QtWidgets.QMessageBox.Warning)
-            msg.setText("Nothing to do!")
-            msg.setWindowTitle("Warning")
-        msg.exec_()
+            message_box.success(
+                message=f"Splitting into {len(details)} files completed.",
+                details="\n\n".join(details))
+        elif not errors:
+            message_box.nothing_todo()
         return paths_split, errors
 
     @QtCore.pyqtSlot()
@@ -622,37 +598,25 @@ class DCKit(QtWidgets.QMainWindow):
                         invalid.append(path)
         if invalid:
             # Show an error dialog for the tdms files
-            msg = QtWidgets.QMessageBox()
-            msg.setIcon(QtWidgets.QMessageBox.Critical)
-            msg.setText("Only .tdms files supported as input!")
-            msg.setWindowTitle("Unsupported action")
-            msg.setDetailedText("Affected files are:\n\n"
-                                + "\n\n".join([str(p) for p in invalid]))
-            msg.exec_()
+            message_box.ignored(
+                message="Only .tdms files supported as input, got "
+                        + f"{len(invalid)} other files!",
+                details="Affected files are:\n\n"
+                        + "\n\n".join([str(p) for p in invalid]))
 
         if errors:
-            # Show an error dialog for the files that could not be converted
-            msg = QtWidgets.QMessageBox()
-            msg.setIcon(QtWidgets.QMessageBox.Critical)
-            msg.setText("Some files could not be converted!")
-            msg.setWindowTitle("Unexpected Error")
-            msg.setDetailedText(
-                "Affected files are:\n\n"
-                + "\n\n".join(["{}:\n{}".format(*e) for e in errors]))
-            msg.exec_()
+            message_box.error(
+                message=f"{len(errors)} files could not be converted!",
+                details="Affected files are:\n\n"
+                        + "\n\n".join(["{}:\n{}".format(*e) for e in errors]))
 
         # finally, show the feedback dialog
-        msg = QtWidgets.QMessageBox()
         if len(details):
-            msg.setIcon(QtWidgets.QMessageBox.Information)
-            msg.setText("Successfully converted .tdms to .rtdc!")
-            msg.setWindowTitle("Success")
-            msg.setDetailedText("\n\n".join(details))
-        else:
-            msg.setIcon(QtWidgets.QMessageBox.Warning)
-            msg.setText("Nothing to do!")
-            msg.setWindowTitle("Warning")
-        msg.exec_()
+            message_box.success(
+                message=f"Converted {len(details)} files to .rtdc.",
+                details="\n\n".join(details))
+        elif not (errors or invalid):
+            message_box.nothing_todo()
         return paths_converted, invalid, errors
 
     @show_wait_cursor
