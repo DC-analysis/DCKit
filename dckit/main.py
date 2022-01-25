@@ -288,6 +288,9 @@ class DCKit(QtWidgets.QMainWindow):
             self.tableWidget.removeRow(0)
         self.pathlist.clear()
         self.integrity_buttons.clear()
+        # clear lru_cache
+        meta_tool.get_rtdc_meta.cache_clear()
+        dlg_icheck.check_dataset.cache_clear()
 
     @QtCore.pyqtSlot()
     def on_repack(self):
