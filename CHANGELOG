@@ -2,7 +2,7 @@
  - ref: cleanup main.py; there is not much more that can be done (#13)
  - fix: clear all lru_caches when the user wants to clear all
    measurements, otherwise outdated metadata is shown (#21)
- - setup: bump dclab from 0.39.5 to 0.39.9 (#21)
+ - setup: bump dclab from 0.39.5 to 0.39.10 (#21, #22)
  - setup: bump numpy to 1.21
 0.12.17
  - fix: write warning text files when joining datasets (#20)
