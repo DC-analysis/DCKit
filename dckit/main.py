@@ -48,9 +48,10 @@ class DCKit(QtWidgets.QMainWindow):
         self.tableWidget.itemChanged.connect(self.on_table_text_changed)
         self.checkBox_repack.clicked.connect(self.on_repack)
         # File menu
-        self.action_add.triggered.connect(self.on_add_measurements)
-        self.action_add_folder.triggered.connect(self.on_add_folder)
-        self.action_clear.triggered.connect(self.on_clear_measurements)
+        self.action_add.triggered.connect(self.on_action_add_measurements)
+        self.action_add_folder.triggered.connect(self.on_action_add_folder)
+        self.action_clear.triggered.connect(self.on_action_clear_measurements)
+        self.action_quit.triggered.connect(self.on_action_quit)
         # Help menu
         self.actionSoftware.triggered.connect(self.on_action_software)
         self.actionAbout.triggered.connect(self.on_action_about)
@@ -133,7 +134,7 @@ class DCKit(QtWidgets.QMainWindow):
                         item.setFlags(QtCore.Qt.ItemIsEnabled)
                     self.tableWidget.setItem(row, col, item)
         if datas:
-            # set header widhts
+            # set header widths
             self.tableWidget.setColumnWidth(info["DCKit-id"][0], 10)
             self.tableWidget.setColumnWidth(info["integrity"][0], 100)
             self.tableWidget.setColumnWidth(info["path"][0], 180)
@@ -179,6 +180,33 @@ class DCKit(QtWidgets.QMainWindow):
         path_index = int(self.tableWidget.item(row, 0).text())
         path = self.pathlist[path_index]
         return path
+
+    @QtCore.pyqtSlot()
+    def on_action_add_folder(self):
+        """Search folder for RT-DC data and add to table"""
+        # show a dialog for selecting folder
+        path = QtWidgets.QFileDialog.getExistingDirectory(self)
+        if not path:
+            return
+        # find RT-DC data
+        pathlist = meta_tool.find_data(path)
+        if not pathlist:
+            raise ValueError("No RT-DC data found in {}!".format(path))
+        # add to list
+        self.append_paths(pathlist)
+
+    @QtCore.pyqtSlot()
+    def on_action_add_measurements(self):
+        """Select .tdms and .rtdc files and add to table"""
+        # show a dialog for adding multiple single files (.tdms and .rtdc)
+        pathlist, _ = QtWidgets.QFileDialog.getOpenFileNames(
+            self,
+            'Select RT-DC data',
+            '',
+            'RT-DC data (*.tdms *.rtdc)')
+        if pathlist:
+            # add to list
+            self.append_paths(pathlist)
 
     @QtCore.pyqtSlot()
     def on_action_about(self):
@@ -234,6 +262,17 @@ class DCKit(QtWidgets.QMainWindow):
         msg.exec_()
 
     @QtCore.pyqtSlot()
+    def on_action_clear_measurements(self):
+        """Clear the table"""
+        for _ in range(len(self.pathlist)):
+            self.tableWidget.removeRow(0)
+        self.pathlist.clear()
+        self.integrity_buttons.clear()
+        # clear lru_cache
+        meta_tool.get_rtdc_meta.cache_clear()
+        dlg_icheck.check_dataset.cache_clear()
+
+    @QtCore.pyqtSlot()
     def on_action_software(self):
         libs = [dclab,
                 imageio,
@@ -255,59 +294,9 @@ class DCKit(QtWidgets.QMainWindow):
                                           sw_text)
 
     @QtCore.pyqtSlot()
-    def on_add_folder(self):
-        """Search folder for RT-DC data and add to table"""
-        # show a dialog for selecting folder
-        path = QtWidgets.QFileDialog.getExistingDirectory(self)
-        if not path:
-            return
-        # find RT-DC data
-        pathlist = meta_tool.find_data(path)
-        if not pathlist:
-            raise ValueError("No RT-DC data found in {}!".format(path))
-        # add to list
-        self.append_paths(pathlist)
-
-    @QtCore.pyqtSlot()
-    def on_add_measurements(self):
-        """Select .tdms and .rtdc files and add to table"""
-        # show a dialog for adding multiple single files (.tdms and .rtdc)
-        pathlist, _ = QtWidgets.QFileDialog.getOpenFileNames(
-            self,
-            'Select RT-DC data',
-            '',
-            'RT-DC data (*.tdms *.rtdc)')
-        if pathlist:
-            # add to list
-            self.append_paths(pathlist)
-
-    @QtCore.pyqtSlot()
-    def on_clear_measurements(self):
-        """Clear the table"""
-        for _ in range(len(self.pathlist)):
-            self.tableWidget.removeRow(0)
-        self.pathlist.clear()
-        self.integrity_buttons.clear()
-        # clear lru_cache
-        meta_tool.get_rtdc_meta.cache_clear()
-        dlg_icheck.check_dataset.cache_clear()
-
-    @QtCore.pyqtSlot()
-    def on_repack(self):
-        """The checkbox is clicked (no repacking is performed)"""
-        if self.checkBox_repack.isChecked():
-            # ask the user whether he knows what he is doing
-            dlg = QtWidgets.QDialog()
-            path_ui = pkg_resources.resource_filename("dckit", "dlg_repack.ui")
-            uic.loadUi(path_ui, dlg)
-            ret = dlg.exec_()
-            if ret == QtWidgets.QDialog.Rejected:
-                self.checkBox_repack.setChecked(False)
-                self.pushButton_metadata.setEnabled(True)
-            else:
-                self.pushButton_metadata.setEnabled(False)
-        else:
-            self.pushButton_metadata.setEnabled(True)
+    def on_action_quit(self):
+        """Determine what happens when the user wants to quit"""
+        QtCore.QCoreApplication.quit()
 
     @QtCore.pyqtSlot()
     def on_integrity_check(self, button=None):
@@ -335,6 +324,23 @@ class DCKit(QtWidgets.QMainWindow):
                   "tolerable": "#7A6500",
                   "passed": "#007A04"}
         button.setStyleSheet("color: {}".format(colors[dlg.state]))
+
+    @QtCore.pyqtSlot()
+    def on_repack(self):
+        """The checkbox is clicked (no repacking is performed)"""
+        if self.checkBox_repack.isChecked():
+            # ask the user whether he knows what he is doing
+            dlg = QtWidgets.QDialog()
+            path_ui = pkg_resources.resource_filename("dckit", "dlg_repack.ui")
+            uic.loadUi(path_ui, dlg)
+            ret = dlg.exec_()
+            if ret == QtWidgets.QDialog.Rejected:
+                self.checkBox_repack.setChecked(False)
+                self.pushButton_metadata.setEnabled(True)
+            else:
+                self.pushButton_metadata.setEnabled(False)
+        else:
+            self.pushButton_metadata.setEnabled(True)
 
     @QtCore.pyqtSlot()
     def on_table_text_changed(self):
@@ -501,14 +507,14 @@ class DCKit(QtWidgets.QMainWindow):
 
     @QtCore.pyqtSlot()
     def on_task_split(self):
-        split_events, okPressed = QtWidgets.QInputDialog.getInt(
+        split_events, ok_pressed = QtWidgets.QInputDialog.getInt(
             self, "Events per output file", "Limit events to:",
             10000, 0, 1000000, 5000)
         details = []
         errors = []
         paths_split = []
 
-        if okPressed:
+        if ok_pressed:
             pout = QtWidgets.QFileDialog.getExistingDirectory(self)
             if pout:
                 with ShowWaitCursor():

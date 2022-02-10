@@ -1,3 +1,6 @@
+0.12.19
+ - fix: File-Quit did not do anything (#25)
+ - ref: slight restructure of main.py
 0.12.18
  - ref: cleanup main.py; there is not much more that can be done (#13)
  - fix: clear all lru_caches when the user wants to clear all

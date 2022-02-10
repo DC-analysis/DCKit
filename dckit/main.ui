@@ -204,7 +204,7 @@
      <x>0</x>
      <y>0</y>
      <width>1112</width>
-     <height>22</height>
+     <height>31</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -215,7 +215,7 @@
     <addaction name="action_add_folder"/>
     <addaction name="action_clear"/>
     <addaction name="separator"/>
-    <addaction name="action_Quit"/>
+    <addaction name="action_quit"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">
@@ -238,7 +238,7 @@
     <string>&amp;Clear measurements</string>
    </property>
   </action>
-  <action name="action_Quit">
+  <action name="action_quit">
    <property name="text">
     <string>&amp;Quit</string>
    </property>
