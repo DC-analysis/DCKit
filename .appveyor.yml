@@ -39,8 +39,8 @@ test_script:
   - appveyor-retry pip install coverage codecov flake8
   - flake8 dckit
   - flake8 tests
-  - coverage run --source=dckit -m pytest tests
-  - coverage report -m
+  - python -m coverage run --source=dckit -m pytest tests
+  - python -m coverage report -m
   # Allow codecov to fail
   - codecov || exit 0
 
