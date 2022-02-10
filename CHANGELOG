@@ -1,6 +1,7 @@
 0.13.0
  - feat: allow to specify temporary features in settings (#24)
  - fix: File-Quit did not do anything (#25)
+ - setup: bump dclab from 0.39.10 to 0.39.15
  - ref: slight restructure of main.py
 0.12.18
  - ref: cleanup main.py; there is not much more that can be done (#13)
