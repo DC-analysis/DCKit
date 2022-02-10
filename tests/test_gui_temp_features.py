@@ -39,7 +39,7 @@ def test_task_compress_with_scalar_feature(qtbot, monkeypatch):
         data = np.linspace(2, 3, len(h5["events/deform"]))
         h5["events/peter"] = data
 
-    mw = DCKit(check_update=False)
+    mw = DCKit()
     qtbot.addWidget(mw)
     mw.append_paths([path])
 
@@ -79,7 +79,7 @@ def test_task_compress_with_non_scalar_feature(qtbot, monkeypatch):
         data[1, 0, 3, 1] = 10
         h5["events/hans"] = data
 
-    mw = DCKit(check_update=False)
+    mw = DCKit()
     qtbot.addWidget(mw)
     mw.append_paths([path])
 

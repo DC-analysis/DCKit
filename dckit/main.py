@@ -25,15 +25,15 @@ from . import meta_tool
 from . import preferences
 from . import update
 from .wait_cursor import show_wait_cursor, ShowWaitCursor
-from ._version import version as __version__
+from ._version import version
 
 
 class DCKit(QtWidgets.QMainWindow):
-    def __init__(self, check_update=True):
+    def __init__(self):
         super(DCKit, self).__init__()
         path_ui = pkg_resources.resource_filename("dckit", "main.ui")
         uic.loadUi(path_ui, self)
-        self.setWindowTitle("DCKit {}".format(__version__))
+        self.setWindowTitle(f"DCKit {version}")
         # update check
         self._update_thread = None
         self._update_worker = None
@@ -77,14 +77,13 @@ class DCKit(QtWidgets.QMainWindow):
         self.integrity_buttons = {}
         # if "--version" was specified, print the version and exit
         if "--version" in sys.argv:
-            print(__version__)
+            print(version)
             QtWidgets.QApplication.processEvents(
                 QtCore.QEventLoop.AllEvents, 300)
             sys.exit(0)
         # check update after version printing (QThread: Destroyed error)
-        if check_update:
-            # Update Check
-            self.on_action_check_update(True)
+        do_update = int(self.settings.value("check for updates", 1))
+        self.on_action_check_update(do_update)
         self.show()
         self.raise_()
         self.activateWindow()
@@ -229,12 +228,11 @@ class DCKit(QtWidgets.QMainWindow):
         about_text = "DCKit is a tool for managing RT-DC data.\n\n" \
             + "Author: Paul Müller\n" \
             + "Code: https://github.com/ZELLMECHANIK-DRESDEN/DCKit\n"
-        QtWidgets.QMessageBox.about(self,
-                                    "DCKit {}".format(__version__),
-                                    about_text)
+        QtWidgets.QMessageBox.about(self, f"DCKit {version}", about_text)
 
     @QtCore.pyqtSlot(bool)
     def on_action_check_update(self, b):
+        self.settings.setValue("check for updates", int(b))
         if b and self._update_thread is None:
             self._update_thread = QtCore.QThread()
             self._update_worker = update.UpdateWorker()
@@ -244,7 +242,6 @@ class DCKit(QtWidgets.QMainWindow):
                 self.on_action_check_update_finished)
             self._update_thread.start()
 
-            version = __version__
             ghrepo = "ZELLMECHANIK-DRESDEN/DCKit"
 
             QtCore.QMetaObject.invokeMethod(self._update_worker,
@@ -304,17 +301,15 @@ class DCKit(QtWidgets.QMainWindow):
                 nptdms,
                 numpy,
                 ]
-        sw_text = "DCKit {}\n\n".format(__version__)
-        sw_text += "Python {}\n\n".format(sys.version)
+        sw_text = f"DCKit {version}\n\n"
+        sw_text += f"Python {sys.version}\n\n"
         sw_text += "Modules:\n"
         for lib in libs:
-            sw_text += "- {} {}\n".format(lib.__name__, lib.__version__)
-        sw_text += "- PyQt5 {}\n".format(QtCore.QT_VERSION_STR)
+            sw_text += f"- {lib.__name__} {lib.__version__}\n"
+        sw_text += f"- PyQt5 {QtCore.QT_VERSION_STR}\n"
         if hasattr(sys, 'frozen'):
             sw_text += "\nThis executable has been created using PyInstaller."
-        QtWidgets.QMessageBox.information(self,
-                                          "Software",
-                                          sw_text)
+        QtWidgets.QMessageBox.information(self, "Software", sw_text)
 
     @QtCore.pyqtSlot()
     def on_action_quit(self):
@@ -717,7 +712,7 @@ class DCKit(QtWidgets.QMainWindow):
 
 def append_execution_log(path, task_dict):
     info = common.get_job_info()
-    info["libraries"]["dckit"] = __version__
+    info["libraries"]["dckit"] = version
     info["task"] = task_dict
     history.append_history(path, info)
 
@@ -734,8 +729,7 @@ def excepthook(etype, value, trace):
         prints the standard Python header: ``Traceback (most recent
         call last)``.
     """
-    vinfo = "Unhandled exception in DCKit version {}:\n".format(
-        __version__)
+    vinfo = f"Unhandled exception in DCKit version {version}:\n"
     tmp = traceback.format_exception(etype, value, trace)
     exception = "".join([vinfo]+tmp)
 

@@ -35,7 +35,7 @@ def test_integrity_shapein_issue3(qtbot, monkeypatch):
     monkeypatch.setattr(QMessageBox, "exec_", lambda *args: QMessageBox.Ok)
     monkeypatch.setattr(QFileDialog, "getExistingDirectory",
                         lambda *args: str(path_out))
-    mw = DCKit(check_update=False)
+    mw = DCKit()
     qtbot.addWidget(mw)
     mw.append_paths([h5path_m])
     assert mw.tableWidget.rowCount() == 1, "sanity check"
@@ -87,7 +87,7 @@ def test_integrity_shapein_issue3_control(qtbot, monkeypatch):
     monkeypatch.setattr(QMessageBox, "exec_", lambda *args: QMessageBox.Ok)
     monkeypatch.setattr(QFileDialog, "getExistingDirectory",
                         lambda *args: str(path_out))
-    mw = DCKit(check_update=False)
+    mw = DCKit()
     qtbot.addWidget(mw)
     mw.append_paths([h5path_m])
     assert mw.tableWidget.rowCount() == 1, "sanity check"
@@ -129,7 +129,7 @@ def test_integrity_shapein_issue3_control_2(qtbot, monkeypatch):
     monkeypatch.setattr(QMessageBox, "exec_", lambda *args: QMessageBox.Ok)
     monkeypatch.setattr(QFileDialog, "getExistingDirectory",
                         lambda *args: str(path_out))
-    mw = DCKit(check_update=False)
+    mw = DCKit()
     qtbot.addWidget(mw)
     mw.append_paths([h5path_m])
     assert mw.tableWidget.rowCount() == 1, "sanity check"
@@ -164,7 +164,7 @@ def test_integrity_with_medium(qtbot, monkeypatch):
     monkeypatch.setattr(QMessageBox, "exec_", lambda *args: QMessageBox.Ok)
     monkeypatch.setattr(QFileDialog, "getExistingDirectory",
                         lambda *args: str(path_out))
-    mw = DCKit(check_update=False)
+    mw = DCKit()
     qtbot.addWidget(mw)
     mw.append_paths([path])
     assert mw.tableWidget.rowCount() == 1, "sanity check"
@@ -205,7 +205,7 @@ def test_integrity_with_medium_remove(qtbot, monkeypatch):
     monkeypatch.setattr(QMessageBox, "exec_", lambda *args: QMessageBox.Ok)
     monkeypatch.setattr(QFileDialog, "getExistingDirectory",
                         lambda *args: str(path_out))
-    mw = DCKit(check_update=False)
+    mw = DCKit()
     qtbot.addWidget(mw)
     mw.append_paths([path])
     # set medium to CellCarrier
@@ -246,7 +246,7 @@ def test_online_contour_no_absdiff(qtbot, monkeypatch):
     monkeypatch.setattr(QMessageBox, "exec_", lambda *args: QMessageBox.Ok)
     monkeypatch.setattr(QFileDialog, "getExistingDirectory",
                         lambda *args: str(path_out))
-    mw = DCKit(check_update=False)
+    mw = DCKit()
     qtbot.addWidget(mw)
     mw.append_paths([path])
     # set value to True
@@ -294,7 +294,7 @@ def test_online_contour_no_absdiff_remove(qtbot, monkeypatch):
     monkeypatch.setattr(QMessageBox, "exec_", lambda *args: QMessageBox.Ok)
     monkeypatch.setattr(QFileDialog, "getExistingDirectory",
                         lambda *args: str(path_out))
-    mw = DCKit(check_update=False)
+    mw = DCKit()
     qtbot.addWidget(mw)
     mw.append_paths([path])
     # set value

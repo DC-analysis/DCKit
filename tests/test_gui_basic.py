@@ -12,12 +12,12 @@ from helper_methods import retrieve_data
 
 def test_simple(qtbot):
     """Open the main window and close it again"""
-    main_window = DCKit(check_update=False)
+    main_window = DCKit()
     main_window.close()
 
 
 def test_list_entries(qtbot):
-    mw = DCKit(check_update=False)
+    mw = DCKit()
     qtbot.addWidget(mw)
     path = retrieve_data("rtdc_data_hdf5_rtfdc.zip")
     mw.append_paths([path])
@@ -35,7 +35,7 @@ def test_task_compress(qtbot, monkeypatch):
     monkeypatch.setattr(QFileDialog, "getExistingDirectory",
                         lambda *args: str(path_out))
 
-    mw = DCKit(check_update=False)
+    mw = DCKit()
     qtbot.addWidget(mw)
     mw.append_paths([path])
     pouts, invalid = mw.on_task_compress()
@@ -62,7 +62,7 @@ def test_task_compress_and_repack_strip_issue19(qtbot, monkeypatch):
     monkeypatch.setattr(QFileDialog, "getExistingDirectory",
                         lambda *args: str(path_out))
 
-    mw = DCKit(check_update=False)
+    mw = DCKit()
     qtbot.addWidget(mw)
     mw.append_paths([path])
     mw.checkBox_repack.setChecked(True)
@@ -88,7 +88,7 @@ def test_task_join(qtbot, monkeypatch):
     monkeypatch.setattr(QFileDialog, "getSaveFileName",
                         lambda *args: (str(path_out), None))
 
-    mw = DCKit(check_update=False)
+    mw = DCKit()
     qtbot.addWidget(mw)
     mw.append_paths([path, path])
     mw.on_task_join()
@@ -99,7 +99,7 @@ def test_task_join(qtbot, monkeypatch):
 def test_task_metadata_sample(qtbot, monkeypatch):
     # Monkeypatch message box to always return OK
     monkeypatch.setattr(QMessageBox, "exec_", lambda *args: QMessageBox.Ok)
-    mw = DCKit(check_update=False)
+    mw = DCKit()
     qtbot.addWidget(mw)
     path = retrieve_data("rtdc_data_hdf5_rtfdc.zip")
     mw.append_paths([path])
@@ -121,7 +121,7 @@ def test_task_split_trace(qtbot, monkeypatch):
     monkeypatch.setattr(QInputDialog, "getInt",
                         lambda *args: [3, QMessageBox.Ok])
     # Initialize
-    mw = DCKit(check_update=False)
+    mw = DCKit()
     qtbot.addWidget(mw)
     mw.append_paths([path])
     paths_split, errors = mw.on_task_split()
@@ -144,7 +144,7 @@ def test_task_tdms2rtdc(qtbot, monkeypatch):
     monkeypatch.setattr(QMessageBox, "exec_", lambda *args: QMessageBox.Ok)
     monkeypatch.setattr(QFileDialog, "getExistingDirectory",
                         lambda *args: str(path_out))
-    mw = DCKit(check_update=False)
+    mw = DCKit()
     qtbot.addWidget(mw)
     mw.append_paths([path])
     assert mw.tableWidget.rowCount() == 1
@@ -181,7 +181,7 @@ def test_task_tdms2rtdc_bad_online_contour_no_absdiff(qtbot, monkeypatch):
     monkeypatch.setattr(QMessageBox, "exec_", lambda *args: QMessageBox.Ok)
     monkeypatch.setattr(QFileDialog, "getExistingDirectory",
                         lambda *args: str(path_out))
-    mw = DCKit(check_update=False)
+    mw = DCKit()
     qtbot.addWidget(mw)
     mw.append_paths([path])
     assert mw.tableWidget.rowCount() == 1
