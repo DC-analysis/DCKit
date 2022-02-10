@@ -22,6 +22,7 @@ from .dlg_icheck import IntegrityCheckDialog
 from . import history
 from . import message_box
 from . import meta_tool
+from . import preferences
 from . import update
 from .wait_cursor import show_wait_cursor, ShowWaitCursor
 from ._version import version as __version__
@@ -36,6 +37,19 @@ class DCKit(QtWidgets.QMainWindow):
         # update check
         self._update_thread = None
         self._update_worker = None
+        # Settings are stored in the .ini file format. Even though
+        # `self.settings` may return integer/bool in the same session,
+        # in the next session, it will reliably return strings. Lists
+        # of strings (comma-separated) work nicely though.
+        QtCore.QCoreApplication.setOrganizationName("DC-Analysis")
+        QtCore.QCoreApplication.setOrganizationDomain("dc.readthedocs.io")
+        QtCore.QCoreApplication.setApplicationName("DCKit")
+        QtCore.QSettings.setDefaultFormat(QtCore.QSettings.IniFormat)
+        #: DCKit settings
+        self.settings = QtCore.QSettings()
+        self.settings.setIniCodec("utf-8")
+        # reload temporary features
+        preferences.register_temporary_features()
         # Disable native menubar (e.g. on Mac)
         self.menubar.setNativeMenuBar(False)
         # signals
@@ -52,6 +66,8 @@ class DCKit(QtWidgets.QMainWindow):
         self.action_add_folder.triggered.connect(self.on_action_add_folder)
         self.action_clear.triggered.connect(self.on_action_clear_measurements)
         self.action_quit.triggered.connect(self.on_action_quit)
+        # Edit menu
+        self.action_preferences.triggered.connect(self.on_action_preferences)
         # Help menu
         self.actionSoftware.triggered.connect(self.on_action_software)
         self.actionAbout.triggered.connect(self.on_action_about)
@@ -271,6 +287,13 @@ class DCKit(QtWidgets.QMainWindow):
         # clear lru_cache
         meta_tool.get_rtdc_meta.cache_clear()
         dlg_icheck.check_dataset.cache_clear()
+
+    @QtCore.pyqtSlot()
+    def on_action_preferences(self):
+        """Show the preferences dialog"""
+        dlg = preferences.Preferences(self)
+        dlg.setWindowTitle("DCKit Preferences")
+        dlg.exec()
 
     @QtCore.pyqtSlot()
     def on_action_software(self):

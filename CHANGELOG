@@ -1,4 +1,5 @@
-0.12.19
+0.13.0
+ - feat: allow to specify temporary features in settings (#24)
  - fix: File-Quit did not do anything (#25)
  - ref: slight restructure of main.py
 0.12.18
