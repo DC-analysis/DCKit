@@ -26,7 +26,8 @@ setup(
     long_description=open('README.rst').read() if exists('README.rst') else '',
     install_requires=["dclab[tdms]==0.40.0",  # pinned for triaging
                       "h5py>=2.8.0",
-                      "imageio[ffmpeg]>=2.8.0",
+                      # https://github.com/imageio/imageio/issues/766
+                      "imageio[ffmpeg]==2.10.3",
                       "nptdms>=0.27.0",
                       "numpy>=1.21",
                       "pyqt5",
