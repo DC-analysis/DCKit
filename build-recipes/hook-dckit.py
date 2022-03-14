@@ -14,4 +14,4 @@ datas = collect_data_files("dckit", include_py_files=True)
 datas += collect_data_files("dckit", subdir="img")
 
 # This is excluded by the PIL-hook and not included automatically
-hiddenimports = ["PyQt5"]
+hiddenimports = ["PyQt5", "imageio_ffmpeg"]
