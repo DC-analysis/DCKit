@@ -1,7 +1,10 @@
 0.13.1
+ - fix: processing .tdms files did not work since version 0.12.17
+   due to imageio not finding imageio_ffmpeg, fixed by...
  - setup: pin imageio to 2.10.3
  - setup: bump dclab from 0.39.15 to 0.40.0
  - build: add imageio_ffmpeg to hidden imports
+ - build: update pinned packages
 0.13.0
  - feat: allow to specify temporary features in settings (#24)
  - fix: File-Quit did not do anything (#25)
