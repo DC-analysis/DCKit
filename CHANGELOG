@@ -1,3 +1,6 @@
+0.13.3
+ - setup: bump dclab from 0.42.2 to 0.43.0 (faster compression)
+ - setup: include Zstandard compression library in build
 0.13.2
  - setup: bump dclab from 0.40.0 to 0.42.2
  - ref: remove deprecated distutils dependency

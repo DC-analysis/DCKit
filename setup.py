@@ -24,7 +24,7 @@ setup(
     license="GPL v3",
     description=description,
     long_description=open('README.rst').read() if exists('README.rst') else '',
-    install_requires=["dclab[tdms]==0.42.2",  # pinned for triaging
+    install_requires=["dclab[tdms]==0.43.0",  # pinned for triaging
                       "h5py>=2.8.0",
                       # https://github.com/imageio/imageio/issues/766
                       "imageio[ffmpeg]==2.10.3",
