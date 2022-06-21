@@ -11,6 +11,7 @@ from dclab.cli import repack
 from dclab.cli import common
 
 import h5py
+import hdf5plugin
 import imageio
 import imageio_ffmpeg
 import nptdms
@@ -295,15 +296,16 @@ class DCKit(QtWidgets.QMainWindow):
     @QtCore.pyqtSlot()
     def on_action_software(self):
         libs = [dclab,
+                h5py,
                 imageio,
                 imageio_ffmpeg,
-                h5py,
                 nptdms,
                 numpy,
                 ]
         sw_text = f"DCKit {version}\n\n"
         sw_text += f"Python {sys.version}\n\n"
         sw_text += "Modules:\n"
+        sw_text += f"- hdf5plugin {hdf5plugin.version}\n"
         for lib in libs:
             sw_text += f"- {lib.__name__} {lib.__version__}\n"
         sw_text += f"- PyQt5 {QtCore.QT_VERSION_STR}\n"
