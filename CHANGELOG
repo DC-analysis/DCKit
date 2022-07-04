@@ -1,3 +1,5 @@
+0.13.4
+ - build: use InnoSetup "autopf" feature for installation directory
 0.13.3
  - setup: bump dclab from 0.42.2 to 0.43.0 (faster compression)
  - setup: include Zstandard compression library in build
