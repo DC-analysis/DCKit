@@ -58,9 +58,7 @@ after_test:
   # Create InnoSetup installers
   # Generate iss file
   - python win_make_iss.py
-  # Set InnoSetup path here, because Cython complained about it.
-  - set PATH=%PATH%;"C:\\Program Files (x86)\\Inno Setup 5"
-  - iscc /Q win_dckit.iss
+  - C:\\"Program Files (x86)"\\"Inno Setup 6"\\ISCC.exe /Q /Q win_dckit.iss
 
 artifacts:
   # InnoSetup files
