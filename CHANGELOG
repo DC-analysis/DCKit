@@ -1,3 +1,5 @@
+0.13.5
+ - setup: bump dclab from 0.43.0 to 0.45.0 (scalar feature support)
 0.13.4
  - build: use InnoSetup "autopf" feature for installation directory
 0.13.3
