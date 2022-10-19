@@ -12,11 +12,11 @@ jobs:
     steps:
     - name: Set env
       run: echo "RELEASE_VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - name: Set up Python
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v4
       with:
-        python-version: 3.8
+        python-version: 3.10
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
@@ -35,7 +35,7 @@ jobs:
         tag_name: ${{ github.ref }}
         release_name: DCKit ${{ github.ref }}
         body: |
-          ![](https://img.shields.io/github/downloads/ZELLMECHANIK-DRESDEN/DCKit/${{ env.RELEASE_VERSION }}/total.svg)
+          ![](https://img.shields.io/github/downloads/DC-analysis/DCKit/${{ env.RELEASE_VERSION }}/total.svg)
 
         draft: true
         prerelease: false
@@ -45,7 +45,7 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
+        upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing its ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
         asset_path: ./build-recipes/dist/DCKit_${{ env.RELEASE_VERSION }}.dmg
         asset_name: DCKit_${{ env.RELEASE_VERSION }}.dmg
         asset_content_type: application/zip
@@ -55,7 +55,7 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
+        upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing its ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
         asset_path: ./build-recipes/dist/DCKit.pkg
         asset_name: DCKit.pkg
         asset_content_type: application/zip

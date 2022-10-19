@@ -14,7 +14,7 @@ or (for the .rtdc file format) via external tools such as
 Installation
 ------------
 A Windows installer and macOS packages are available from the
-`release page <https://github.com/ZELLMECHANIK-DRESDEN/DCKit/releases>`__.
+`release page <https://github.com/DC-analysis/DCKit/releases>`__.
 If you have Python 3 installed, you may also use pip to install DCKit:
 ::
 
@@ -41,12 +41,12 @@ Testing
     python -m pytest tests
 
 
-.. |DCKit| image:: https://raw.github.com/ZELLMECHANIK-DRESDEN/DCKit/master/docs/logo/dckit_h50.png
+.. |DCKit| image:: https://raw.github.com/DC-analysis/DCKit/master/docs/logo/dckit_h50.png
 .. |PyPI Version| image:: https://img.shields.io/pypi/v/dckit.svg
    :target: https://pypi.python.org/pypi/dckit
-.. |Build Status Unix| image:: https://img.shields.io/github/workflow/status/ZELLMECHANIK-DRESDEN/DCKit/Checks
-   :target: https://github.com/ZELLMECHANIK-DRESDEN/DCKit/actions?query=workflow%3AChecks
+.. |Build Status Unix| image:: https://img.shields.io/github/workflow/status/DC-analysis/DCKit/Checks
+   :target: https://github.com/DC-analysis/DCKit/actions?query=workflow%3AChecks
 .. |Build Status Win| image:: https://img.shields.io/appveyor/build/paulmueller/dckit
    :target: https://ci.appveyor.com/project/paulmueller/DCKit
-.. |Coverage Status| image:: https://img.shields.io/codecov/c/github/ZELLMECHANIK-DRESDEN/DCKit/master.svg
-   :target: https://codecov.io/gh/ZELLMECHANIK-DRESDEN/DCKit
+.. |Coverage Status| image:: https://img.shields.io/codecov/c/github/DC-analysis/DCKit/master.svg
+   :target: https://codecov.io/gh/DC-analysis/DCKit

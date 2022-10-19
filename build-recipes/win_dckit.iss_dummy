@@ -5,7 +5,7 @@
 #define MyAppNameSimple "DCKit"
 #define MyzmAppName "DCKit"
 #define MyAppVersion "0.1.0"
-#define MyAppPublisher "Zellmechanik-Dresden"
+#define MyAppPublisher "Max Planck Institute for the Science of Light"
 #define MyAppURL "https://zellmechanik.com"
 #define MyAppPlatform "win32"
 #define MyAppExeName "DCKit.exe"

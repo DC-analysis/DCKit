@@ -21,11 +21,11 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
                    reason="does not always run on travisCI")
 @pytest.mark.skipif(not NET_AVAILABLE, reason="No network connection!")
 def test_update_basic():
-    mdict = update.check_release(ghrepo="ZELLMECHANIK-DRESDEN/DCKit",
+    mdict = update.check_release(ghrepo="DC-analysis/DCKit",
                                  version="0.10.0")
     assert mdict["errors"] is None
     assert mdict["update available"]
-    mdict = update.check_release(ghrepo="ZELLMECHANIK-DRESDEN/DCKit",
+    mdict = update.check_release(ghrepo="DC-analysis/DCKit",
                                  version="8472.0.0")
     assert mdict["errors"] is None
     assert not mdict["update available"]

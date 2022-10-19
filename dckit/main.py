@@ -228,7 +228,7 @@ class DCKit(QtWidgets.QMainWindow):
     def on_action_about(self):
         about_text = "DCKit is a tool for managing RT-DC data.\n\n" \
             + "Author: Paul Müller\n" \
-            + "Code: https://github.com/ZELLMECHANIK-DRESDEN/DCKit\n"
+            + "Code: https://github.com/DC-analysis/DCKit\n"
         QtWidgets.QMessageBox.about(self, f"DCKit {version}", about_text)
 
     @QtCore.pyqtSlot(bool)
@@ -243,7 +243,7 @@ class DCKit(QtWidgets.QMainWindow):
                 self.on_action_check_update_finished)
             self._update_thread.start()
 
-            ghrepo = "ZELLMECHANIK-DRESDEN/DCKit"
+            ghrepo = "DC-analysis/DCKit"
 
             QtCore.QMetaObject.invokeMethod(self._update_worker,
                                             'processUpdate',

@@ -16,7 +16,7 @@ setup(
     name=name,
     author=author,
     author_email='dev@craban.de',
-    url='https://github.com/ZELLMECHANIK-DRESDEN/DCKit',
+    url='https://github.com/DC-analysis/DCKit',
     version=version,
     packages=find_packages(),
     package_dir={name: name},

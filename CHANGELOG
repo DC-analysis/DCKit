@@ -1,3 +1,6 @@
+0.14.0
+ - docs: remove ZMD branding
+ - build: migrate to Python 3.10
 0.13.5
  - build: cleanup build pipeline
  - setup: bump dclab from 0.43.0 to 0.45.0 (scalar feature support)
@@ -43,7 +46,7 @@
  - setup: bump dclab from 0.35.7 to 0.36.1 (improved writing speed)
 0.12.13
  - fix: allow to edit medium when Shape-In 2.3.0.0 wrote wrong value due
-   to https://github.com/ZELLMECHANIK-DRESDEN/ShapeIn_Issues/issues/3
+   to https://github.com/DC-analysis/ShapeIn_Issues/issues/3
  - setup: bump dclab from 0.35.6 to 0.35.7
 0.12.12
  - fix: some warnings in integrity check dialog were not properly
