@@ -44,7 +44,7 @@ Testing
 .. |DCKit| image:: https://raw.github.com/DC-analysis/DCKit/master/docs/logo/dckit_h50.png
 .. |PyPI Version| image:: https://img.shields.io/pypi/v/dckit.svg
    :target: https://pypi.python.org/pypi/dckit
-.. |Build Status Unix| image:: https://img.shields.io/github/workflow/status/DC-analysis/DCKit/Checks
+.. |Build Status Unix| image:: https://img.shields.io/github/actions/workflow/status/DC-analysis/DCKit/check.yml
    :target: https://github.com/DC-analysis/DCKit/actions?query=workflow%3AChecks
 .. |Build Status Win| image:: https://img.shields.io/appveyor/build/paulmueller/dckit
    :target: https://ci.appveyor.com/project/paulmueller/DCKit
