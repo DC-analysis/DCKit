@@ -1,3 +1,5 @@
+0.14.6
+ - setup: bump dclab from 0.46.4 to 0.48.1 (medium names)
 0.14.5
  - setup: bump dclab from 0.46.4 to 0.47.0 (new feature)
 0.14.4
