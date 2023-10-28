@@ -7,7 +7,7 @@ on:
 
 jobs:
   build:
-    name: Create Release
+    name: macOS Release
     runs-on: macos-latest
     steps:
     - name: Set env
@@ -39,23 +39,12 @@ jobs:
 
         draft: true
         prerelease: false
-    - name: Upload Release Asset DMG
-      id: upload-release-asset-dmg
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - uses: "marvinpinto/action-automatic-releases@latest"
       with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing its ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
-        asset_path: ./build-recipes/dist/DCKit_${{ env.RELEASE_VERSION }}.dmg
-        asset_name: DCKit_${{ env.RELEASE_VERSION }}.dmg
-        asset_content_type: application/zip
-    - name: Upload Release Asset PGK
-      id: upload-release-asset-pkg
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing its ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
-        asset_path: ./build-recipes/dist/DCKit.pkg
-        asset_name: DCKit.pkg
-        asset_content_type: application/zip
+        repo_token: "${{ secrets.GITHUB_TOKEN }}"
+        prerelease: false
+        draft: true
+        title: "DCKit ${{ env.RELEASE_VERSION }}"
+        files: |
+          ./build-recipes/dist/*.dmg
+          ./build-recipes/dist/*.pkg

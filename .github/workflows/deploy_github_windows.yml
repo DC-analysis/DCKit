@@ -7,7 +7,7 @@ on:
 
 jobs:
   build:
-    name: Create Release
+    name: Windows Release
     runs-on: windows-latest
     steps:
     - name: Set env
@@ -30,26 +30,12 @@ jobs:
         # Run the binary (the most simple test)
         dist\\DCKit\\DCKit.exe --version
         python win_make_iss.py
-        ISCC.exe /Q /Q win_dckit.iss
-    - name: Create Release
-      id: create_release
-      uses: actions/create-release@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
+        ISCC.exe /Q win_dckit.iss
+    - uses: "marvinpinto/action-automatic-releases@latest"
       with:
-        tag_name: ${{ github.ref }}
-        release_name: DCKit ${{ github.ref }}
-        body: |
-          ![](https://img.shields.io/github/downloads/DC-analysis/DCKit/${{ env.RELEASE_VERSION }}/total.svg)
-
-        draft: true
+        repo_token: "${{ secrets.GITHUB_TOKEN }}"
         prerelease: false
-    - name: Upload Release Asset EXE
-      id: upload-release-asset-exe
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing its ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
-        asset_path: ./build-recipes/Output/*
-        asset_content_type: application/zip
+        draft: true
+        title: "DCKit ${{ env.RELEASE_VERSION }}"
+        files: |
+          ./build-recipes/Output/*.exe
