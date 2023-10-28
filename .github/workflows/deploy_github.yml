@@ -1,4 +1,4 @@
-name: Deploy to GitHub Releases for Windows
+name: Deploy to GitHub Releases for macOS
 
 on:
   push:
@@ -7,8 +7,8 @@ on:
 
 jobs:
   build:
-    name: Windows Release
-    runs-on: windows-latest
+    name: macOS Release
+    runs-on: macos-latest
     steps:
     - name: Set env
       run: echo "RELEASE_VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
@@ -22,7 +22,13 @@ jobs:
         python -m pip install --upgrade pip
         pip install setuptools wheel twine
         pip install -e .
+    - name: Build macOS app
+      if: runner.os == 'macOS'
+      working-directory: ./build-recipes
+      run: |
+        bash ./macos_build_app.sh DCKit ${{ env.RELEASE_VERSION }}
     - name: Build windows executable
+      if: runner.os == 'windows'
       working-directory: ./build-recipes
       run: |
         pip install -r win_build_requirements.txt
@@ -31,12 +37,15 @@ jobs:
         dist\\DCKit\\DCKit.exe --version
         python win_make_iss.py
         ISCC.exe /Q win_dckit.iss
-    - uses: "marvinpinto/action-automatic-releases@latest"
+    - name: Release Assets
+      uses: softprops/action-gh-release@v1
       with:
-        repo_token: "${{ secrets.GITHUB_TOKEN }}"
-        prerelease: false
+        name: BMicro ${{ github.ref_name }}
         draft: true
-        automatic_release_tag: "${{ env.RELEASE_VERSION }}"
-        title: "DCKit ${{ env.RELEASE_VERSION }}"
+        prerelease: false
+        body: |
+            ![](https://img.shields.io/github/downloads/DC-analysis/DCKit/${{ env.RELEASE_VERSION }}/total.svg)
         files: |
+          ./build-recipes/dist/BMicro_${{ github.ref_name }}_macosx.dmg
+          ./build-recipes/dist/BMicro_${{ github.ref_name }}_macosx.pkg
           ./build-recipes/Output/*.exe
