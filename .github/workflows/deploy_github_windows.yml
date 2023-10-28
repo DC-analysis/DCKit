@@ -36,6 +36,7 @@ jobs:
         repo_token: "${{ secrets.GITHUB_TOKEN }}"
         prerelease: false
         draft: true
+        automatic_release_tag: "${{ env.RELEASE_VERSION }}"
         title: "DCKit ${{ env.RELEASE_VERSION }}"
         files: |
           ./build-recipes/Output/*.exe
