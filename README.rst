@@ -1,7 +1,7 @@
 |DCKit|
 =======
 
-|PyPI Version| |Build Status Unix| |Build Status Win| |Coverage Status|
+|PyPI Version| |Build Status| |Coverage Status|
 
 
 **DCKit** is a graphical toolkit for performing several data editing
@@ -44,9 +44,7 @@ Testing
 .. |DCKit| image:: https://raw.github.com/DC-analysis/DCKit/master/docs/logo/dckit_h50.png
 .. |PyPI Version| image:: https://img.shields.io/pypi/v/dckit.svg
    :target: https://pypi.python.org/pypi/dckit
-.. |Build Status Unix| image:: https://img.shields.io/github/actions/workflow/status/DC-analysis/DCKit/check.yml
+.. |Build Status| image:: https://img.shields.io/github/actions/workflow/status/DC-analysis/DCKit/check.yml
    :target: https://github.com/DC-analysis/DCKit/actions?query=workflow%3AChecks
-.. |Build Status Win| image:: https://img.shields.io/appveyor/build/paulmueller/dckit
-   :target: https://ci.appveyor.com/project/paulmueller/DCKit
 .. |Coverage Status| image:: https://img.shields.io/codecov/c/github/DC-analysis/DCKit/master.svg
    :target: https://codecov.io/gh/DC-analysis/DCKit

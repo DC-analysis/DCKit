@@ -1,0 +1,55 @@
+name: Deploy to GitHub Releases for Windows
+
+on:
+  push:
+    tags:
+      - '*'
+
+jobs:
+  build:
+    name: Create Release
+    runs-on: windows-latest
+    steps:
+    - name: Set env
+      run: echo "RELEASE_VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
+    - uses: actions/checkout@v3
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: "3.10"
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install setuptools wheel twine
+        pip install -e .
+    - name: Build windows executable
+      working-directory: ./build-recipes
+      run: |
+        pip install -r win_build_requirements.txt
+        pyinstaller -y --log-level=WARN win_DCKit.spec
+        # Run the binary (the most simple test)
+        dist\\DCKit\\DCKit.exe --version
+        python win_make_iss.py
+        ISCC.exe /Q /Q win_dckit.iss
+    - name: Create Release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
+      with:
+        tag_name: ${{ github.ref }}
+        release_name: DCKit ${{ github.ref }}
+        body: |
+          ![](https://img.shields.io/github/downloads/DC-analysis/DCKit/${{ env.RELEASE_VERSION }}/total.svg)
+
+        draft: true
+        prerelease: false
+    - name: Upload Release Asset EXE
+      id: upload-release-asset-exe
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing its ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
+        asset_path: ./build-recipes/Output/*
+        asset_content_type: application/zip
