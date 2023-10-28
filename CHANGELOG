@@ -1,3 +1,5 @@
+0.15.0
+ - setup: drop support for Python 3.9
 0.14.10
  - setup: bump dclab from 0.49.0 to 0.52.0 (support QPI data)
  - setup: bump h5py from 2.8.0 to 3.9.0

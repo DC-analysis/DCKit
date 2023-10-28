@@ -32,7 +32,7 @@ setup(
                       "numpy>=1.21",
                       "pyqt5",
                       ],
-    python_requires='>=3.8, <4',
+    python_requires='>=3.10, <4',
     entry_points={"gui_scripts": ['dckit = dckit.__main__:main']},
     keywords=["RT-DC", "deformability", "cytometry", "zellmechanik"],
     classifiers=['Operating System :: OS Independent',

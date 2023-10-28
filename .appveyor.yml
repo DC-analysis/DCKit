@@ -9,7 +9,7 @@ notifications:
 
 environment:
   matrix:
-    - PYTHON: "C:\\Python38-x64"
+    - PYTHON: "C:\\Python310-x64"
 
 init:
   - "ECHO %PYTHON% %PYTHON_VERSION% %PYTHON_ARCH%"
@@ -37,8 +37,8 @@ build: off
 test_script:
   - appveyor-retry pip install pytest pytest-qt
   - appveyor-retry pip install coverage codecov flake8
-  - flake8 dckit
-  - flake8 tests
+  - flake8 --exclude _version.py .ckit
+  - flake8 --exclude _version.py .ests
   - python -m coverage run --source=dckit -m pytest tests
   - python -m coverage report -m
   # Allow codecov to fail
