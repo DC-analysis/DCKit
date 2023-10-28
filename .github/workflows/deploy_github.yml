@@ -50,6 +50,6 @@ jobs:
         body: |
             ![](https://img.shields.io/github/downloads/DC-analysis/DCKit/${{ env.RELEASE_VERSION }}/total.svg)
         files: |
-          ./build-recipes/dist/BMicro_${{ github.ref_name }}_macosx.dmg
-          ./build-recipes/dist/BMicro_${{ github.ref_name }}_macosx.pkg
+          ./build-recipes/dist/*.dmg
+          ./build-recipes/dist/*.pkg
           ./build-recipes/Output/*.exe
