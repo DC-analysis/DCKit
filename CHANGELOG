@@ -1,4 +1,6 @@
 0.16.1
+ - setup: bump dclab from 0.58.2 to 0.58.7
+0.16.1
  - setup: bump dclab from 0.57.0 to 0.58.2 (basin features)
 0.16.0
  - setup: bump dclab from 0.55.7 to 0.57.0 (speed)
