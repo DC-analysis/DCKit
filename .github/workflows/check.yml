@@ -42,8 +42,11 @@ jobs:
         # show installed packages
         pip freeze
     - name: Start application and print version
+      env:
+        # Display must be available globally for linux to know where xvfb is
+        QT_DEBUG_PLUGINS: 1
       run: |
-        QT_DEBUG_PLUGINS=1 python -m dckit --version
+        python -m dckit --version
     - name: Test with pytest
       run: |
          coverage run --source=dckit -m pytest tests
