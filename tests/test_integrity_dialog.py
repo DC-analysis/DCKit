@@ -12,6 +12,18 @@ from dckit.meta_tool import MetadataEditedWarning
 from helper_methods import retrieve_data
 
 
+
+@pytest.fixture
+def with_online_contour():
+    """In dclab version 0.60.0, "online_contour" is not important anymore"""
+    dclab.rtdc_dataset.check.IMPORTANT_KEYS["online_contour"] = [
+        "no_absdiff"
+    ]
+    yield
+    # cleanup
+    dclab.rtdc_dataset.check.IMPORTANT_KEYS.pop("online_contour")
+
+
 def test_integrity_shapein_issue3(qtbot, monkeypatch):
     """Shape-In did not store the medium correctly
 
@@ -228,7 +240,7 @@ def test_integrity_with_medium_remove(qtbot, monkeypatch):
     assert wid3.currentText() == ""
 
 
-def test_online_contour_no_absdiff(qtbot, monkeypatch):
+def test_online_contour_no_absdiff(qtbot, monkeypatch, with_online_contour):
     """Test booleanness of the metadata combo box"""
     path = retrieve_data("rtdc_data_traces_video.zip")
     # modify the data to not have the [online_contour]: "no absdiff" keyword
@@ -276,7 +288,7 @@ def test_online_contour_no_absdiff(qtbot, monkeypatch):
         assert ds.config["online_contour"]["no absdiff"]
 
 
-def test_online_contour_no_absdiff_remove(qtbot, monkeypatch):
+def test_online_contour_no_absdiff_remove(qtbot, monkeypatch, with_online_contour):
     """Test booleanness of the metadata combo box"""
     path = retrieve_data("rtdc_data_traces_video.zip")
     # modify the data to not have the [online_contour]: "no absdiff" keyword
