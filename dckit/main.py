@@ -15,7 +15,7 @@ import hdf5plugin
 import imageio
 import imageio_ffmpeg
 import nptdms
-import numpy as np
+import numpy
 from PyQt5 import uic, QtCore, QtWidgets
 
 from . import dlg_icheck
@@ -704,7 +704,7 @@ class DCKit(QtWidgets.QMainWindow):
                         task_dict["new"][h5key] = value
                         task_dict["old"][h5key] = value_old
                         if isinstance(value, str):  # (after task_dict)
-                            value = np.bytes_(value.encode("utf-8"))
+                            value = numpy.bytes_(value.encode("utf-8"))
                         h5.attrs[h5key] = value
         if task_dict["new"]:
             return task_dict
