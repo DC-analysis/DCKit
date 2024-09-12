@@ -1,3 +1,6 @@
+0.17.1
+ - setup: bump dclab from 0.60.0 to 0.61.1 (fix writing wrong frame numbers
+   when joining files that were measured a longer time apart)
 0.17.0
  - setup: bump dclab from 0.58.7 to 0.60.0 (internal basins support)
 0.16.2
