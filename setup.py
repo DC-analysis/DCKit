@@ -21,7 +21,7 @@ setup(
     packages=find_packages(),
     package_dir={name: name},
     include_package_data=True,
-    license="GPL v3",
+    license="GPL-3.0-or-later",
     description=description,
     long_description=open('README.rst').read() if exists('README.rst') else '',
     install_requires=["dclab[tdms]>=0.62.11",
