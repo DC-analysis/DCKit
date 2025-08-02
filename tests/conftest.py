@@ -19,7 +19,7 @@ def pytest_configure(config):
     """
     tempfile.tempdir = TMPDIR
     QtCore.QCoreApplication.setOrganizationName("DC-Analysis")
-    QtCore.QCoreApplication.setOrganizationDomain("dc.readthedocs.io")
+    QtCore.QCoreApplication.setOrganizationDomain("dc-cosmos.org")
     QtCore.QCoreApplication.setApplicationName("DCKit")
     QtCore.QSettings.setDefaultFormat(QtCore.QSettings.IniFormat)
     settings = QtCore.QSettings()
