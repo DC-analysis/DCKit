@@ -1,5 +1,6 @@
 0.17.6
  - docs: properly employ license GPL-3.0-or-later
+ - ref: only use closeEvent when exiting DCscope GUI
 0.17.5
  - setup: bump dclab from 0.62.10 to 0.62.11
 0.17.4

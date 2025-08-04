@@ -66,7 +66,6 @@ class DCKit(QtWidgets.QMainWindow):
         self.action_add.triggered.connect(self.on_action_add_measurements)
         self.action_add_folder.triggered.connect(self.on_action_add_folder)
         self.action_clear.triggered.connect(self.on_action_clear_measurements)
-        self.action_quit.triggered.connect(self.on_action_quit)
         # Edit menu
         self.action_preferences.triggered.connect(self.on_action_preferences)
         # Help menu
@@ -312,11 +311,6 @@ class DCKit(QtWidgets.QMainWindow):
         if hasattr(sys, 'frozen'):
             sw_text += "\nThis executable has been created using PyInstaller."
         QtWidgets.QMessageBox.information(self, "Software", sw_text)
-
-    @QtCore.pyqtSlot()
-    def on_action_quit(self):
-        """Determine what happens when the user wants to quit"""
-        QtCore.QCoreApplication.quit()
 
     @QtCore.pyqtSlot()
     def on_integrity_check(self, button=None):
