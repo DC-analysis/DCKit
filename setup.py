@@ -24,10 +24,9 @@ setup(
     license="GPL-3.0-or-later",
     description=description,
     long_description=open('README.rst').read() if exists('README.rst') else '',
-    install_requires=["dclab[tdms]>=0.62.11",
+    install_requires=["dclab[tdms]>=0.67.0",
                       "h5py>=3.9.0",
-                      # https://github.com/imageio/imageio/issues/766
-                      "imageio[ffmpeg]==2.10.3",
+                      "imageio[ffmpeg]",
                       "nptdms>=0.27.0",
                       "numpy>=1.21",
                       "pyqt5",
