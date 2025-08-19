@@ -4,7 +4,7 @@ import json
 import functools
 import numbers
 
-import pkg_resources
+import importlib.resources
 import warnings
 
 import dclab
@@ -28,8 +28,10 @@ class IntegrityCheckDialog(QtWidgets.QDialog):
 
     def __init__(self, parent, path, *args, **kwargs):
         QtWidgets.QDialog.__init__(self, parent, *args, **kwargs)
-        path_ui = pkg_resources.resource_filename("dckit", "dlg_icheck.ui")
-        uic.loadUi(path_ui, self)
+        ref = importlib.resources.files(
+            "dckit") / "dlg_icheck.ui"
+        with importlib.resources.as_file(ref) as path_ui:
+            uic.loadUi(path_ui, self)
 
         self.path = path
         #: metadata (remember across instances)
@@ -253,8 +255,11 @@ class IntegrityCheckDialog(QtWidgets.QDialog):
             return
         dlg = QtWidgets.QDialog()
         dlg.setWindowTitle("{}: {}".format(self.path.name, log))
-        path_ui = pkg_resources.resource_filename("dckit", "dlg_log.ui")
-        uic.loadUi(path_ui, dlg)
+        ref = importlib.resources.files(
+            "dckit") / "dlg_log.ui"
+        with importlib.resources.as_file(ref) as path_ui:
+            uic.loadUi(path_ui, dlg)
+
         dlg.label.setText(log)
         logs = meta_tool.get_rtdc_logs(self.path)
         text = "\n".join(logs[log])

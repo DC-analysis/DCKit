@@ -1,6 +1,6 @@
 import hashlib
 import pathlib
-import pkg_resources
+import importlib.resources
 import signal
 import sys
 import traceback
@@ -32,8 +32,11 @@ from ._version import version
 class DCKit(QtWidgets.QMainWindow):
     def __init__(self):
         super(DCKit, self).__init__()
-        path_ui = pkg_resources.resource_filename("dckit", "main.ui")
-        uic.loadUi(path_ui, self)
+        ref = importlib.resources.files(
+            "dckit") / "main.ui"
+        with importlib.resources.as_file(ref) as path_ui:
+            uic.loadUi(path_ui, self)
+
         self.setWindowTitle(f"DCKit {version}")
         # update check
         self._update_thread = None
@@ -345,8 +348,11 @@ class DCKit(QtWidgets.QMainWindow):
         if self.checkBox_repack.isChecked():
             # ask the user whether he knows what he is doing
             dlg = QtWidgets.QDialog()
-            path_ui = pkg_resources.resource_filename("dckit", "dlg_repack.ui")
-            uic.loadUi(path_ui, dlg)
+            ref = importlib.resources.files(
+                "dckit") / "dlg_repack.ui"
+            with importlib.resources.as_file(ref) as path_ui:
+                uic.loadUi(path_ui, dlg)
+
             ret = dlg.exec_()
             if ret == QtWidgets.QDialog.Rejected:
                 self.checkBox_repack.setChecked(False)
@@ -434,8 +440,11 @@ class DCKit(QtWidgets.QMainWindow):
         """Join multiple RT-DC measurements"""
         # show a dialog with sample name
         dlg = QtWidgets.QDialog()
-        path_ui = pkg_resources.resource_filename("dckit", "dlg_join.ui")
-        uic.loadUi(path_ui, dlg)
+        ref = importlib.resources.files(
+            "dckit") / "dlg_join.ui"
+        with importlib.resources.as_file(ref) as path_ui:
+            uic.loadUi(path_ui, dlg)
+
         dlg.lineEdit.setText(self.get_metadata(0)["experiment"]["sample"])
         ret = dlg.exec_()
         if ret == QtWidgets.QDialog.Accepted:

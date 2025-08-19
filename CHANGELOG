@@ -1,5 +1,6 @@
 0.17.7
  - fix: invalid properties used in .ui files
+ - ref: migrate from pkg_resources to importlib.resources
  - setup: bump dclab from 0.62.11 to 0.67.0
 0.17.6
  - docs: properly employ license GPL-3.0-or-later
