@@ -101,5 +101,5 @@ venv.bak/
 
 # mypy
 .mypy_cache/
-_version_save.py
+_version.py
 .idea

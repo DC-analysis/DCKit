@@ -1,3 +1,5 @@
+0.18.0
+ - setup: migrate to pyproject.toml
 0.17.7
  - fix: invalid properties used in .ui files
  - ref: migrate from pkg_resources to importlib.resources

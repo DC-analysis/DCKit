@@ -1,0 +1,49 @@
+[build-system]
+# Defined by PEP 518:
+requires = [
+    # for version management
+    "setuptools>=64", "setuptools_scm[toml]>=8"
+]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "dckit"
+authors = [
+    # In alphabetical order.
+    {name = "Paul Müller"},
+]
+maintainers = [
+    {name = "Paul Müller", email="dev@craban.de"},
+]
+description = "Graphical toolkit for RT-DC data management"
+readme = "README.rst"
+requires-python = ">=3.10, <4"
+keywords = ["RT-DC", "DC", "deformability", "cytometry"]
+classifiers = [
+    'Operating System :: OS Independent',
+    'Programming Language :: Python :: 3',
+    'Intended Audience :: Science/Research',
+]
+license = "GPL-3.0-or-later"
+dependencies = [
+    "dclab[tdms]>=0.67.0",
+    "h5py>=3.9.0",
+    "imageio[ffmpeg]",
+    "nptdms>=0.27.0",
+    "numpy>=1.21",
+    "pyqt5",
+]
+dynamic = ["version"]
+
+[project.scripts]
+dckit = "dckit.__main__:main"
+
+[project.urls]
+source = "https://github.com/DC-analysis/DCscope"
+tracker = "https://github.com/DC-analysis/DCscope/issues"
+documentation = "https://dckit.readthedocs.io"
+changelog = "https://github.com/DC-analysis/DCscope/blob/main/CHANGELOG"
+
+[tool.setuptools_scm]
+write_to = "dckit/_version.py"
+version_scheme = "post-release"
